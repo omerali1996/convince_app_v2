@@ -49,7 +49,6 @@ export default function GameScreen() {
       <div style={topCard}>
         <h2 style={title}>{currentScenario.name}</h2>
         <p style={story}><strong>Hikâye:</strong> {currentScenario.story}</p>
-        <p style={goal}><strong>Amaç:</strong> {currentScenario.purpose || "—"}</p>
       </div>
 
       <div className="scroll-area" style={chatContainer}>
@@ -136,3 +135,4 @@ const aiMessage   = {
 
 const inputRow = { display: "grid", gridTemplateColumns: "1fr auto auto auto", gap: 8 };
 const empty = { textAlign: "center", fontSize: 18, color: "var(--muted)", marginTop: 40 };
+
