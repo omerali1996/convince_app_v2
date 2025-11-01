@@ -46,19 +46,13 @@ export default function ScenariosScreen() {
               >
                 <h3 style={{ marginBottom: 8 }}>{preview.name}</h3>
                 <p style={story}><strong>Hikâye:</strong> {preview.story}</p>
-                <p style={goal}><strong>Amaç:</strong> {preview.goal || "—"}</p>
+                <p style={goal}><strong>Amaç:</strong> {preview.purpose || "—"}</p>
 
                 <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
-                  <button
-                    className="btn btn-primary"
-                    onClick={() => selectScenario(preview)}
-                  >
+                  <button className="btn btn-primary" onClick={() => selectScenario(preview)}>
                     Oyna
                   </button>
-                  <button
-                    className="btn btn-secondary"
-                    onClick={() => setPreview(null)}
-                  >
+                  <button className="btn btn-secondary" onClick={() => setPreview(null)}>
                     Geri
                   </button>
                 </div>
