@@ -45,7 +45,7 @@ def ask():
         chat_completion = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
-                {"role": "system", "content": scenario["System Prompt"]},
+                {"role": "system", "content": f"Sen {scenario["Hikaye"]}'deki karaktersin. O karakter gibi bir ruh halinde ol ve o şekilde davran lütfen. {scenario["System Prompt"]}" },
                 {"role": "user", "content": user_input}
             ]
         )
@@ -59,3 +59,4 @@ def ask():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
