@@ -46,7 +46,6 @@ export default function ScenariosScreen() {
               >
                 <h3 style={{ marginBottom: 8 }}>{preview.name}</h3>
                 <p style={story}><strong>Hikâye:</strong> {preview.story}</p>
-                <p style={goal}><strong>Amaç:</strong> {preview.purpose || "—"}</p>
 
                 <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
                   <button className="btn btn-primary" onClick={() => selectScenario(preview)}>
@@ -91,3 +90,4 @@ const scenarioBtn = (s, preview) => ({
   background: preview?.id === s.id ? "#182242" : "#161d36",
   border: "1px solid rgba(255,255,255,.08)"
 });
+
