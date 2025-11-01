@@ -45,7 +45,7 @@ def ask():
         chat_completion = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
-                {"role": "system", "content": f"{scenario["System Prompt"]}" },
+                {"role": "system", "content": f"Sen bu hikayedeki X'sin.Nasıl davranmak gerektiği de ana prompt içinde verilmiştir.Hikaye {scenario["Hikaye"]}, Ana promt:{scenario["System Prompt"]}" },
                 {"role": "user", "content": user_input}
             ]
         )
@@ -59,6 +59,7 @@ def ask():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
 
 
 
