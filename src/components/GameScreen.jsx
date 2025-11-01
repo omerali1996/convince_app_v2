@@ -13,6 +13,12 @@ export default function GameScreen() {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Senaryo değiştiğinde sohbeti sıfırla (istenirse)
+  useEffect(() => {
+    setMessages([]);
+    setInput("");
+  }, [currentScenario?.id]);
+
   if (!currentScenario) return <div style={empty}>Senaryo seçilmedi.</div>;
 
   const sendMessage = async () => {
@@ -26,7 +32,8 @@ export default function GameScreen() {
     try {
       const res = await api.post("/api/ask", {
         user_input: userMessage,
-        scenario_id: currentScenario.id, // tek turluk backend — olduğu gibi
+        scenario_id: currentScenario.id,
+        history: messages, // <<< ÖNEMLİ: geçmişi her istekte geri gönder
       });
 
       const aiText = (res.data?.answer || "").trim();
@@ -135,4 +142,3 @@ const aiMessage   = {
 
 const inputRow = { display: "grid", gridTemplateColumns: "1fr auto auto auto", gap: 8 };
 const empty = { textAlign: "center", fontSize: 18, color: "var(--muted)", marginTop: 40 };
-
