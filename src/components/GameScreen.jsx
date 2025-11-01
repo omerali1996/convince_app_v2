@@ -30,20 +30,17 @@ export default function GameScreen() {
       const res = await api.post("/api/ask", {
         user_input: userMessage,
         scenario_id: currentScenario.id,
-        history: messages, // çoklu-tur bağlam
       });
 
       const aiText = (res.data?.answer || "").trim();
-      const nextMessages = [...messages, { sender: "user", text: userMessage }, { sender: "ai", text: aiText }];
-      setMessages(nextMessages);
+      setMessages((prev) => [...prev, { sender: "ai", text: aiText }]);
 
-      // 5. kullanıcı sorusundan sonra kazan/kaybet kontrolü
       if (newUserTurn >= 5) {
         const normalized = aiText.toLocaleLowerCase("tr-TR");
         const convinced =
           normalized.includes("ikna oldum") ||
           normalized.includes("ikna edildim") ||
-          normalized.includes("ikna") && normalized.includes("oldum");
+          (normalized.includes("ikna") && normalized.includes("oldum"));
 
         setResult(convinced ? "win" : "lose");
       }
@@ -71,7 +68,7 @@ export default function GameScreen() {
           <span className="badge">Tur: {userTurn}/5</span>
         </div>
         <p style={story}><strong>Hikâye:</strong> {currentScenario.story}</p>
-        <p style={goal}><strong>Amaç:</strong> {currentScenario.goal || "—"}</p>
+        <p style={goal}><strong>Amaç:</strong> {currentScenario.purpose || "—"}</p>
       </div>
 
       <div className="scroll-area" style={chatContainer}>
@@ -89,7 +86,7 @@ export default function GameScreen() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-          placeholder={result ? "Sonuçlandı – yeniden denemek için 'Yeniden Dene'ye bas." : (userTurn < 5 ? "Mesajınızı yazın…" : "5. soruyu kullandınız")}
+          placeholder={result ? "Sonuçlandı – yeniden dene için 'Yeniden Dene'ye bas." : (userTurn < 5 ? "Mesajınızı yazın…" : "5. soruyu kullandınız")}
           disabled={loading || result || userTurn >= 5}
         />
         <button className="btn btn-primary" onClick={sendMessage} disabled={loading || result || userTurn >= 5}>
