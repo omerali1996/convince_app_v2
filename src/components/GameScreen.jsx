@@ -20,8 +20,7 @@ export default function GameScreen() {
     setInput("");
   }, [currentScenario?.id]);
 
-  if (!currentScenario)
-    return <div style={empty}>Senaryo seçilmedi.</div>;
+  if (!currentScenario) return <div style={empty}>Senaryo seçilmedi.</div>;
 
   const sendMessage = async () => {
     const userMessage = input.trim();
@@ -42,10 +41,7 @@ export default function GameScreen() {
       setMessages((prev) => [...prev, { sender: "ai", text: aiText }]);
     } catch (err) {
       console.error(err);
-      setMessages((prev) => [
-        ...prev,
-        { sender: "ai", text: "Cevap alınamadı." },
-      ]);
+      setMessages((prev) => [...prev, { sender: "ai", text: "Cevap alınamadı." }]);
     } finally {
       setLoading(false);
     }
@@ -58,23 +54,19 @@ export default function GameScreen() {
 
   return (
     <div style={container}>
-      {/* 🎭 Üst Kart: Başlık + Hikaye */}
       <div style={topCard}>
         <h2 style={title}>{currentScenario.name}</h2>
-        <div style={storyContainer}>
+        {/* ✅ Hikâye Markdown olarak render ediliyor */}
+        <div style={story}>
           <ReactMarkdown remarkPlugins={[remarkGfm]}>
-            {currentScenario.story || "Bu senaryo için hikaye bulunamadı."}
+            {currentScenario.story}
           </ReactMarkdown>
         </div>
       </div>
 
-      {/* 💬 Chat Alanı */}
-      <div style={chatContainer}>
+      <div className="scroll-area" style={chatContainer}>
         {messages.map((m, idx) => (
-          <div
-            key={idx}
-            style={m.sender === "user" ? userMessage : aiMessage}
-          >
+          <div key={idx} style={m.sender === "user" ? userMessage : aiMessage}>
             <strong style={{ opacity: 0.85 }}>
               {m.sender === "user" ? "Sen" : "Müzakere Botu"}:
             </strong>
@@ -88,7 +80,7 @@ export default function GameScreen() {
         <div ref={scrollRef}></div>
       </div>
 
-      {/* 📝 Input Alanı */}
+      {/* ✅ Mesaj kutusu ve altında butonlar */}
       <div style={inputSection}>
         <input
           value={input}
@@ -116,68 +108,38 @@ export default function GameScreen() {
 }
 
 /* ---------- Styles ---------- */
-const container = {
-  display: "flex",
-  flexDirection: "column",
-  gap: 12,
-  padding: 10,
-  maxWidth: 700,
-  margin: "0 auto",
-  height: "100vh",
-  boxSizing: "border-box",
-};
+const container = { display: "flex", flexDirection: "column", gap: 12 };
 
-/* 🎭 Hikaye Kartı */
 const topCard = {
   background: "#0f162f",
   border: "1px solid rgba(255,255,255,.06)",
   borderRadius: 16,
   padding: 14,
-  maxHeight: "25vh",
-  overflowY: "auto",
-  wordBreak: "break-word",
-  lineHeight: 1.6,
 };
 
-const title = {
-  fontSize: 20,
-  fontWeight: 600,
-  marginBottom: 8,
-  color: "#ffbe5c",
-  textAlign: "center",
-};
+const title = { fontSize: 22 };
+const story = { marginTop: 6, color: "var(--text)", opacity: 0.95, lineHeight: 1.6 };
 
-const storyContainer = {
-  color: "rgba(255,255,255,0.9)",
-  fontSize: "0.95rem",
-  overflowY: "auto",
-  maxHeight: "18vh",
-  paddingRight: 4,
-};
-
-/* 💬 Mesaj Alanı */
 const chatContainer = {
   flex: 1,
   padding: 12,
   border: "1px solid rgba(255,255,255,.06)",
   borderRadius: 16,
   background: "#0f162f",
+  minHeight: 260,
+  maxHeight: 420,
   display: "flex",
   flexDirection: "column",
   gap: 10,
   overflowY: "auto",
-  maxHeight: "45vh",
-  scrollbarWidth: "thin",
 };
 
-/* Mesaj Balonları */
 const bubbleBase = {
   padding: "10px 14px",
   borderRadius: 16,
   maxWidth: "85%",
   wordWrap: "break-word",
-  boxShadow: "0 4px 10px rgba(0,0,0,.2)",
-  fontSize: "0.9rem",
+  boxShadow: "0 8px 24px rgba(0,0,0,.22)",
 };
 
 const userMessage = {
@@ -197,13 +159,11 @@ const aiMessage = {
   border: "1px solid rgba(255,255,255,.06)",
 };
 
-/* 📝 Input ve Butonlar */
 const inputSection = {
   display: "flex",
   flexDirection: "column",
   gap: 10,
-  marginTop: 10,
-  paddingBottom: 10,
+  marginTop: 12,
 };
 
 const inputStyle = {
@@ -214,19 +174,15 @@ const inputStyle = {
   background: "#0f162f",
   color: "#fff",
   fontSize: 15,
-  boxSizing: "border-box",
 };
 
 const buttonGroup = {
   display: "flex",
-  flexWrap: "wrap",
-  justifyContent: "space-between",
+  flexDirection: "column",
   gap: 8,
 };
 
 const buttonPrimary = {
-  flex: 1,
-  minWidth: 100,
   background: "linear-gradient(180deg, #ffbe5c, #ffb84c)",
   border: "none",
   borderRadius: 10,
@@ -237,8 +193,6 @@ const buttonPrimary = {
 };
 
 const buttonSecondary = {
-  flex: 1,
-  minWidth: 100,
   background: "#182240",
   border: "1px solid rgba(255,255,255,0.1)",
   borderRadius: 10,
