@@ -24,7 +24,7 @@ def get_scenarios():
             "story": scenario["Hikaye"],
             "purpose": scenario["Amaç"],            # purpose döndürülüyor
             "system_prompt": scenario["System Prompt"],
-            "özet": scenario["Özet"]
+            "summary": scenario["Özet"]
         })
     return jsonify(simplified_scenarios)
 
@@ -83,4 +83,5 @@ def ask():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
 
