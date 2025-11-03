@@ -1,10 +1,12 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useGame } from "../context/GameContext";
 import api from "../api";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 export default function GameScreen() {
   const { currentScenario, exitGame } = useGame();
-  const [messages, setMessages] = useState([]); // {sender:'user'|'ai', text:string}
+  const [messages, setMessages] = useState([]); 
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef();
@@ -13,7 +15,6 @@ export default function GameScreen() {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Senaryo değiştiğinde sohbeti sıfırla (istenirse)
   useEffect(() => {
     setMessages([]);
     setInput("");
@@ -33,7 +34,7 @@ export default function GameScreen() {
       const res = await api.post("/api/ask", {
         user_input: userMessage,
         scenario_id: currentScenario.id,
-        history: messages, // <<< ÖNEMLİ: geçmişi her istekte geri gönder
+        history: messages,
       });
 
       const aiText = (res.data?.answer || "").trim();
@@ -55,18 +56,31 @@ export default function GameScreen() {
     <div style={container}>
       <div style={topCard}>
         <h2 style={title}>{currentScenario.name}</h2>
-        <p style={story}><strong>Hikâye:</strong> {currentScenario.story}</p>
+
+        {/* ✅ Hikâye artık Markdown render ediliyor */}
+        <div style={story}>
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            {currentScenario.story}
+          </ReactMarkdown>
+        </div>
       </div>
 
       <div className="scroll-area" style={chatContainer}>
         {messages.map((m, idx) => (
           <div key={idx} style={m.sender === "user" ? userMessage : aiMessage}>
-            <strong style={{ opacity:.85 }}>
+            <strong style={{ opacity: 0.85 }}>
               {m.sender === "user" ? "Sen" : "Müzakere Botu"}:
             </strong>
-            <div style={{ marginTop: 6, whiteSpace: "pre-wrap" }}>{m.text}</div>
+
+            <div style={{ marginTop: 6 }}>
+              {/* ✅ AI mesajları da Markdown olarak render ediliyor */}
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {m.text}
+              </ReactMarkdown>
+            </div>
           </div>
         ))}
+
         <div ref={scrollRef}></div>
       </div>
 
@@ -94,15 +108,16 @@ export default function GameScreen() {
 
 /* Styles */
 const container = { display: "flex", flexDirection: "column", gap: 12 };
+
 const topCard = {
   background: "#0f162f",
   border: "1px solid rgba(255,255,255,.06)",
   borderRadius: 16,
   padding: 14
 };
+
 const title = { fontSize: 22 };
-const story = { marginTop: 6, color: "var(--text)", opacity: .95, lineHeight: 1.5 };
-const goal  = { marginTop: 10, color: "var(--accent)" };
+const story = { marginTop: 6, color: "var(--text)", opacity: .95, lineHeight: 1.6 };
 
 const chatContainer = {
   flex: 1,
@@ -114,7 +129,8 @@ const chatContainer = {
   maxHeight: 420,
   display: "flex",
   flexDirection: "column",
-  gap: 10
+  gap: 10,
+  overflowY: "auto"
 };
 
 const bubbleBase = {
@@ -124,6 +140,7 @@ const bubbleBase = {
   wordWrap: "break-word",
   boxShadow: "0 8px 24px rgba(0,0,0,.22)"
 };
+
 const userMessage = {
   ...bubbleBase,
   alignSelf: "flex-end",
@@ -131,7 +148,8 @@ const userMessage = {
   color: "#101010",
   borderTopRightRadius: 4
 };
-const aiMessage   = {
+
+const aiMessage = {
   ...bubbleBase,
   alignSelf: "flex-start",
   background: "#121a34",
