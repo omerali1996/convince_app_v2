@@ -19,7 +19,7 @@ export default function ScenariosScreen() {
   return (
     <div style={container}>
       <div style={headerRow}>
-        <h2 style={title}>Bir senaryo seçin</h2>
+        <h2 style={title}>Senaryolar</h2>
       </div>
 
       <div style={grid}>
@@ -76,7 +76,7 @@ export default function ScenariosScreen() {
                 </div>
               </motion.div>
             ) : (
-              <div style={emptyDetail}>Soldan bir senaryo seç.</div>
+              <div style={emptyDetail}>Bir senaryo seçin.</div>
             )}
           </AnimatePresence>
         </div>
@@ -170,3 +170,4 @@ const scenarioBtn = (s, preview) => ({
   color: "white",
   fontWeight: preview?.id === s.id ? 600 : 400,
 });
+
