@@ -55,7 +55,7 @@ export default function ScenariosScreen() {
                   <h4 style={storyHeader}>📖 Hikâye Özeti </h4>
                   <div style={storyText}>
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                      {preview.story}
+                      {preview.summary}
                     </ReactMarkdown>
                   </div>
                 </div>
@@ -170,6 +170,7 @@ const scenarioBtn = (s, preview) => ({
   color: "white",
   fontWeight: preview?.id === s.id ? 600 : 400,
 });
+
 
 
 
