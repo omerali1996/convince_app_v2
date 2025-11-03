@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useGame } from "../context/GameContext";
 import { motion, AnimatePresence } from "framer-motion";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 export default function ScenariosScreen() {
   const { scenarios, fetchScenarios, selectScenario, loading, error } = useGame();
   const [preview, setPreview] = useState(null);
 
-  useEffect(() => { fetchScenarios(); }, []); // eslint-disable-line
+  useEffect(() => {
+    fetchScenarios();
+  }, []); // eslint-disable-line
 
   if (loading) return <div style={status}>Yükleniyor…</div>;
   if (error) return <div style={status}>{error}</div>;
@@ -19,6 +23,7 @@ export default function ScenariosScreen() {
       </div>
 
       <div style={grid}>
+        {/* Sol liste */}
         <div className="scroll-area" style={listCol}>
           {scenarios.map((s) => (
             <button
@@ -32,6 +37,7 @@ export default function ScenariosScreen() {
           ))}
         </div>
 
+        {/* Sağ detay */}
         <div style={detailCol}>
           <AnimatePresence mode="wait">
             {preview ? (
@@ -47,14 +53,24 @@ export default function ScenariosScreen() {
 
                 <div style={storyBox}>
                   <h4 style={storyHeader}>📖 Hikâye</h4>
-                  <p style={storyText}>{preview.story}</p>
+                  <div style={storyText}>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {preview.story}
+                    </ReactMarkdown>
+                  </div>
                 </div>
 
                 <div style={buttonRow}>
-                  <button className="btn btn-primary" onClick={() => selectScenario(preview)}>
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => selectScenario(preview)}
+                  >
                     Oyna
                   </button>
-                  <button className="btn btn-secondary" onClick={() => setPreview(null)}>
+                  <button
+                    className="btn btn-secondary"
+                    onClick={() => setPreview(null)}
+                  >
                     Geri
                   </button>
                 </div>
@@ -73,7 +89,6 @@ export default function ScenariosScreen() {
 const container = { display: "flex", flexDirection: "column", gap: 14 };
 const headerRow = { display: "flex", alignItems: "center", justifyContent: "space-between" };
 const title = { fontSize: 22, fontWeight: 600, color: "var(--text)" };
-
 const grid = { display: "grid", gridTemplateColumns: "1fr 2fr", gap: 14, minHeight: 360 };
 
 const listCol = {
@@ -95,6 +110,7 @@ const detailCard = {
   display: "flex",
   flexDirection: "column",
   justifyContent: "space-between",
+  overflowY: "auto",
 };
 
 const scenarioTitle = {
@@ -106,9 +122,26 @@ const scenarioTitle = {
   paddingBottom: 6,
 };
 
-const storyBox = { marginTop: 8, background: "rgba(255,255,255,0.03)", padding: 12, borderRadius: 12 };
-const storyHeader = { fontSize: 16, marginBottom: 6, color: "var(--accent)", borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: 4 };
-const storyText = { margin: 0, color: "rgba(255,255,255,0.9)", lineHeight: 1.6 };
+const storyBox = {
+  marginTop: 8,
+  background: "rgba(255,255,255,0.03)",
+  padding: 12,
+  borderRadius: 12,
+};
+
+const storyHeader = {
+  fontSize: 16,
+  marginBottom: 6,
+  color: "var(--accent)",
+  borderBottom: "1px solid rgba(255,255,255,0.1)",
+  paddingBottom: 4,
+};
+
+const storyText = {
+  margin: 0,
+  color: "rgba(255,255,255,0.9)",
+  lineHeight: 1.6,
+};
 
 const buttonRow = { display: "flex", gap: 8, marginTop: 16, justifyContent: "flex-end" };
 
