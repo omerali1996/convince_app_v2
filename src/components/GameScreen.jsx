@@ -160,3 +160,4 @@ const aiMessage = {
 
 const inputRow = { display: "grid", gridTemplateColumns: "1fr auto auto auto", gap: 8 };
 const empty = { textAlign: "center", fontSize: 18, color: "var(--muted)", marginTop: 40 };
+
