@@ -6,7 +6,7 @@ import remarkGfm from "remark-gfm";
 
 export default function GameScreen() {
   const { currentScenario, exitGame } = useGame();
-  const [messages, setMessages] = useState([]); 
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef();
@@ -56,8 +56,7 @@ export default function GameScreen() {
     <div style={container}>
       <div style={topCard}>
         <h2 style={title}>{currentScenario.name}</h2>
-
-        {/* ✅ Hikâye artık Markdown render ediliyor */}
+        {/* ✅ Hikâye Markdown olarak render ediliyor */}
         <div style={story}>
           <ReactMarkdown remarkPlugins={[remarkGfm]}>
             {currentScenario.story}
@@ -71,53 +70,55 @@ export default function GameScreen() {
             <strong style={{ opacity: 0.85 }}>
               {m.sender === "user" ? "Sen" : "Müzakere Botu"}:
             </strong>
-
             <div style={{ marginTop: 6 }}>
-              {/* ✅ AI mesajları da Markdown olarak render ediliyor */}
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                 {m.text}
               </ReactMarkdown>
             </div>
           </div>
         ))}
-
         <div ref={scrollRef}></div>
       </div>
 
-      <div style={inputRow}>
+      {/* ✅ Mesaj kutusu ve altında butonlar */}
+      <div style={inputSection}>
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && sendMessage()}
           placeholder="Mesajınızı yazın…"
           disabled={loading}
+          style={inputStyle}
         />
-        <button className="btn btn-primary" onClick={sendMessage} disabled={loading}>
-          Gönder
-        </button>
-        <button className="btn btn-secondary" onClick={resetChat}>
-          Yeni Oturum
-        </button>
-        <button className="btn btn-secondary" onClick={exitGame}>
-          Çıkış
-        </button>
+
+        <div style={buttonGroup}>
+          <button onClick={sendMessage} disabled={loading} style={buttonPrimary}>
+            Gönder
+          </button>
+          <button onClick={resetChat} style={buttonSecondary}>
+            Yeni Oturum
+          </button>
+          <button onClick={exitGame} style={buttonSecondary}>
+            Çıkış
+          </button>
+        </div>
       </div>
     </div>
   );
 }
 
-/* Styles */
+/* ---------- Styles ---------- */
 const container = { display: "flex", flexDirection: "column", gap: 12 };
 
 const topCard = {
   background: "#0f162f",
   border: "1px solid rgba(255,255,255,.06)",
   borderRadius: 16,
-  padding: 14
+  padding: 14,
 };
 
 const title = { fontSize: 22 };
-const story = { marginTop: 6, color: "var(--text)", opacity: .95, lineHeight: 1.6 };
+const story = { marginTop: 6, color: "var(--text)", opacity: 0.95, lineHeight: 1.6 };
 
 const chatContainer = {
   flex: 1,
@@ -130,7 +131,7 @@ const chatContainer = {
   display: "flex",
   flexDirection: "column",
   gap: 10,
-  overflowY: "auto"
+  overflowY: "auto",
 };
 
 const bubbleBase = {
@@ -138,7 +139,7 @@ const bubbleBase = {
   borderRadius: 16,
   maxWidth: "85%",
   wordWrap: "break-word",
-  boxShadow: "0 8px 24px rgba(0,0,0,.22)"
+  boxShadow: "0 8px 24px rgba(0,0,0,.22)",
 };
 
 const userMessage = {
@@ -146,7 +147,7 @@ const userMessage = {
   alignSelf: "flex-end",
   background: "linear-gradient(180deg, #ffbe5c, #ffb84c)",
   color: "#101010",
-  borderTopRightRadius: 4
+  borderTopRightRadius: 4,
 };
 
 const aiMessage = {
@@ -155,9 +156,55 @@ const aiMessage = {
   background: "#121a34",
   color: "#eaf0ff",
   borderTopLeftRadius: 4,
-  border: "1px solid rgba(255,255,255,.06)"
+  border: "1px solid rgba(255,255,255,.06)",
 };
 
-const inputRow = { display: "grid", gridTemplateColumns: "1fr auto auto auto", gap: 8 };
-const empty = { textAlign: "center", fontSize: 18, color: "var(--muted)", marginTop: 40 };
+const inputSection = {
+  display: "flex",
+  flexDirection: "column",
+  gap: 10,
+  marginTop: 12,
+};
 
+const inputStyle = {
+  width: "100%",
+  padding: "10px 12px",
+  borderRadius: 12,
+  border: "1px solid rgba(255,255,255,0.15)",
+  background: "#0f162f",
+  color: "#fff",
+  fontSize: 15,
+};
+
+const buttonGroup = {
+  display: "flex",
+  flexDirection: "column",
+  gap: 8,
+};
+
+const buttonPrimary = {
+  background: "linear-gradient(180deg, #ffbe5c, #ffb84c)",
+  border: "none",
+  borderRadius: 10,
+  padding: "10px 12px",
+  cursor: "pointer",
+  color: "#101010",
+  fontWeight: 600,
+};
+
+const buttonSecondary = {
+  background: "#182240",
+  border: "1px solid rgba(255,255,255,0.1)",
+  borderRadius: 10,
+  padding: "10px 12px",
+  cursor: "pointer",
+  color: "#eaf0ff",
+  fontWeight: 500,
+};
+
+const empty = {
+  textAlign: "center",
+  fontSize: 18,
+  color: "var(--muted)",
+  marginTop: 40,
+};
