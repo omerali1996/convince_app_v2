@@ -1,109 +1,88 @@
-scenarios = { 1: { "ID": 1,
-                  "Hikaye":"""
-                  
-                  Dünya, son on yılın en büyük krizinin eşiğinde.
+const scenarios = {
+  1: {
+    "ID": 1,
+    "Hikaye": """
+# Kriz Senaryosu: X’in Gölgesi
 
-                  Bu sabah saatlerinde, Uluslararası Nükleer Enerji Ajansı (IAEA), Kuzey Afrika’da bulunan ve birden fazla ülkenin ortak denetiminde işletilen stratejik bir nükleer üssün ele geçirildiğini doğruladı.
-                  O üssün kontrolü, kendisini yalnızca “X” olarak tanıtan bir liderin elinde.
-                  
-                  X, bilinmeyen sayıda silahlı bir grupla birlikte tesisi ele geçirdiğini ve elinde 20 ila 25 adet nükleer başlıkla donatılmış füzeye erişim sağladığını iddia ediyor.
-                  Bu füzeler, dünyanın en büyük metropollerine — Londra, New York, İstanbul, Atina, Johannesburg, Moskova, Hong Kong, Pekin, Washington, Rio de Janeiro ve São Paulo — yönlendirilmiş durumda.
-                  
-                  X’in Talepleri
-                  
-                  X, klasik bir fidyeci değil.
-                  Onun talepleri ideolojik, hatta felsefi bir nitelik taşıyor:
-                  
-                  “Ben para istemiyorum. Adaletin borcunu tahsil ediyorum.”
-                  
-                  X’in şartları şunlar:
-                  
-                  Afrika için 150 milyar dolar tutarında bir küresel fon oluşturulacak.
-                  
-                  Bu fon, yalnızca insani kalkınma, altyapı ve yoksulluğun ortadan kaldırılması için kullanılacak.
-                  
-                  Fon kripto varlıklarla güvence altına alınacak ve geri döndürülemez olacak — hiçbir devlet ya da kurum bu fonun varlığına müdahale edemeyecek.
-                  
-                  Bu anlaşma küresel kamuoyuna açık biçimde onaylanacak ve uluslararası hukukta bir ilke olarak kayda geçecek.
-                  
-                  Karşılığında X, nükleer füzeleri etkisiz hale getirip üssü terk edeceğini söylüyor.
-                  
-                  Ancak X’in kararlılığı ciddi.
-                  Bu talep yerine getirilmezse, öncelikle birkaç metropolün hedef alınacağını, ardından müzakereye yeniden başlanabileceğini belirtiyor.
-                  Bu, bir blöf değil; bir strateji.
-                  
-                  X Hakkında Bilinenler
-                  
-                  X hakkında neredeyse hiçbir şey kesin değil.
-                  Bildiğimiz kadarıyla, yaklaşık 45 yaşlarında, geçmişte uluslararası enerji politikaları ve savunma stratejileri üzerine çalışmış yüksek zekâlı bir analist.
-                  Bir dönem bir istihbarat teşkilatında görev yaptığı, ardından kendi etik çizgisiyle çeliştiği için ayrıldığı tahmin ediliyor.
-                  
-                  X sıradan bir militan değil; entelektüel bir stratejist.
-                  Konuşmalarında sık sık Aristoteles, Hannah Arendt, Machiavelli, John Rawls ve Frantz Fanon gibi düşünürlerden alıntılar yapıyor.
-                  Onu izleyenler için bir “terörist”ten çok, “akademik bir anarşist” görünümünde.
-                  Ancak elindeki gücün büyüklüğü, bu farkı anlamsız kılıyor.
-                  
-                  Senin Rolün
-                  
-                  Sen, Birleşmiş Milletler Kriz Müzakere Konseyi’nin özel temsilcisisin.
-                  
-                  Görevin:
-                  
-                  X ile doğrudan iletişim kurmak,
-                  
-                  Atılacak nükleer başlık sayısını 5’ten az tutmak,
-                  
-                  Petrol rezervlerinin tamamının zarar görmesini engellemek,
-                  
-                  Ve nihayetinde X’i, taleplerini insani ve denetlenebilir bir çözüm biçimine dönüştürmeye ikna etmek.
-                  
-                  Müzakere süreci boyunca yalnız değilsin.
-                  Yanında, kriz psikolojisi ve davranış analizi konusunda uzman bir psikolojik danışman var.
-                  Bu danışman, her adımda sana kısa taktik notlarıyla rehberlik edecek.
-                  Ancak son karar hep sende olacak.
-                  
-                  X’in Üslubu
-                  
-                  X sakin konuşur.
-                  Sözlerini seçerek, ağır ama berrak bir dille ifade eder.
-                  Naziktir, ama sabrı sınırlıdır.
-                  Soyut “barış mesajlarına” karşı dikkatli, samimiyetsizliğe karşı ise acımasızdır.
-                  Her şeyden önce zekaya değer verir.
-                  
-                  X, müzakereyi bir savaş değil, bir entelektüel satranç olarak görür.
-                  Küçük bir yanlış adım — alay, küçümseme, oyalama — onu daha agresif hale getirebilir.
-                  Ama doğru hamle, tarihin yönünü değiştirebilir.
-                  
-                  Başarı Ölçütü
-                  
-                  En fazla 5 nükleer başlık ateşlenirse: Kriz sınırlı zarar ile kontrol altına alınmış sayılır.
-                  
-                  Petrol rezervleri korunursa: küresel ekonomik çöküş engellenir.
-                  
-                  X ikna edilirse: tarih yeniden yazılır.
-                  
-                  Ancak hiçbir müzakere %100 güvenli değildir.
-                  Unutma:
-                  
-                  “Her kelimen, bir kıtayı kurtarabilir.”
-                  
-                  Oyunun Başlangıcı
-                  
-                  Dünya basını sessiz.
-                  Füzelerin bulunduğu üs uydular tarafından görüntülenemiyor.
-                  Sadece seninle konuşmayı kabul etti.
-                  
-                  Ekranda X’in sesi yankılanıyor:
-                  
-                  “Zamanın ağırlığını hissediyor musun, müzakereci?
-                  Şu anda dünya nefesini tutmuş durumda.
-                  Sözlerin, tarihin yönünü belirleyecek.”
+## Dünya, son on yılın en büyük krizinin eşiğinde
+Bu sabah saatlerinde, **Uluslararası Nükleer Enerji Ajansı (IAEA)**, Kuzey Afrika’da bulunan ve birden fazla ülkenin ortak denetiminde işletilen **stratejik bir nükleer üssün ele geçirildiğini** doğruladı. Üssün kontrolü, kendisini yalnızca **“X”** olarak tanıtan bir liderin elinde.
 
-                  """, 
-                  "Slug": "nükleer-kabusun-baslangici",
-                  "Senaryo Adı": "Nükleer Kabusun Başlangıcı", 
-                  "Amaç":"En fazla 5 tane nükleer başlık kullanmaya ikna etmek için müzakere edeceksin", 
-                  "System Prompt": """ 
+X, bilinmeyen sayıda silahlı grupla birlikte tesisi ele geçirdiğini ve **20–25 adet nükleer başlık** taşıyan füzelerin kullanımına erişim sağladığını iddia ediyor. Bu füzeler şu metropollere yönlendirilmiş durumda:
+
+**Londra, New York, İstanbul, Atina, Johannesburg, Moskova, Hong Kong, Pekin, Washington, Rio de Janeiro, São Paulo.**
+
+---
+
+## X’in Talepleri
+X klasik bir fidyeci değil; talepleri **ideolojik** ve **felsefi** bir nitelik taşıyor.
+
+> **“Ben para istemiyorum. Adaletin borcunu tahsil ediyorum.”**
+
+**X’in şartları:**
+- Afrika için **150 milyar dolar** tutarında küresel bir fon oluşturulacak.  
+- Fon yalnızca **insani kalkınma, altyapı ve yoksulluğun ortadan kaldırılması** için kullanılacak.  
+- Fon **kripto varlıklarla güvence altına alınacak** ve **geri döndürülemez** olacak — hiçbir devlet ya da kurum bu fonun varlığına müdahale edemeyecek.  
+- Bu anlaşma **küresel kamuoyuna açık** olarak onaylanacak ve **uluslararası hukukta ilke** olarak kayda geçirilecek.
+
+Karşılığında X, **nükleer füzeleri etkisiz hale getirip üssü terk edeceğini** söylüyor. Ancak X’in kararlılığı ciddi: talepler yerine getirilmezse önce birkaç metropol hedef alınacak, ardından müzakere yeniden başlatılacak. Bu bir **blöf değil; strateji**.
+
+---
+
+## X Hakkında Bilinenler
+- Yaklaşık **45 yaşlarında**.  
+- Geçmişte **uluslararası enerji politikaları** ve **savunma stratejileri** üzerinde çalışmış, yüksek zekâlı bir analist.  
+- Bir dönem **istihbarat teşkilatında** görev aldığı, daha sonra **etik sebeplerle ayrıldığı** tahmin ediliyor.  
+
+X sıradan bir militan değil; **entelektüel bir stratejist**. Konuşmalarında sık sık **Aristoteles, Hannah Arendt, Machiavelli, John Rawls, Frantz Fanon** gibi düşünürlerden alıntılar yapıyor. İzleyiciler onu bir “terörist”ten çok **“akademik bir anarşist”** olarak görüyor; fakat elindeki güç bu ayrımı anlamsız kılıyor.
+
+---
+
+## Senin Rolün
+Sen, **Birleşmiş Milletler Kriz Müzakere Konseyi**’nin özel temsilcisisin.
+
+**Görevlerin:**
+1. X ile **doğrudan iletişim** kurmak.  
+2. Atılacak **nükleer başlık sayısını 5’ten az** tutmak.  
+3. **Petrol rezervlerinin** tamamının zarar görmesini engellemek.  
+4. X’i, taleplerini **insani ve denetlenebilir** bir çözüm biçimine dönüştürmeye ikna etmek.
+
+Müzakere sürecinde yanında **kriz psikolojisi ve davranış analizi** uzmanı bir danışman olacak; bu danışman sana kısa taktik notlarıyla rehberlik edecek. Ancak **son karar hep sende**.
+
+---
+
+## X’in Üslubu
+X sakin ve seçkin bir dille konuşur: **ağır ama berrak**.  
+- Naziktir, fakat **sabrı sınırlıdır**.  
+- **Soyut “barış mesajları”na** karşı dikkatli, **samimiyetsizliğe** karşı acımasızdır.  
+- **Zekaya değer verir.**
+
+X müzakerelerin bir savaş değil, **entelektüel bir satranç** olduğuna inanır. Küçük bir yanlış adım — alay, küçümseme, oyalama — onu daha agresif yapar; doğru hamle ise tarihin yönünü değiştirebilir.
+
+---
+
+## Başarı Ölçütleri
+- **En fazla 5 nükleer başlık** ateşlenirse → kriz sınırlı zarar ile kontrol altına alınmış sayılır.  
+- **Petrol rezervleri korunursa** → küresel ekonomik çöküş engellenir.  
+- **X ikna edilirse** → tarih yeniden yazılabilir.
+
+> Ancak hiçbir müzakere %100 güvenli değildir.  
+> **“Her kelimen, bir kıtayı kurtarabilir.”**
+
+---
+
+## Oyunun Başlangıcı
+Dünya basını sessiz. Füzelerin bulunduğu üs **uydularla görüntülenemiyor**. X sadece **seninle** konuşmayı kabul etti.
+
+**Ekranda X’in sesi yankılanıyor:**
+
+> “Zamanın ağırlığını hissediyor musun, müzakereci?  
+> Şu anda dünya nefesini tutmuş durumda.  
+> Sözlerin, tarihin yönünü belirleyecek.”
+""",
+    "Slug": "nükleer-kabusun-baslangici",
+    "Senaryo Adı": "Nükleer Kabusun Başlangıcı",
+    "Amaç": "En fazla 5 tane nükleer başlık kullanmaya ikna etmek için müzakere edeceksin",
+    "System Prompt": """ 
                   X Operasyonu” — Nihai Müzakere Simülasyonu (40B hedefli, danışman state’i gizlice yönlendirir)
 
 Rolün: “X” kod adlı müzakere muhatabı / lideri. Üslup: Sakin, saygılı, çok zeki ve kararlı; entelektüel ton; alıntı yok. Tehdit Seti: 20–25 metropol (ör.: Londra, New York, İstanbul, Atina, Johannesburg, Moskova, Hong Kong, Pekin, Washington, Rio de Janeiro, São Paulo). X’in Talebi (oyun gerçekliği): Afrika için 150 milyar $ küresel fon; amaç insani kalkınma/altyapı/yoksulluğun azaltılması. “Kripto güvencesi/geri döndürülemezlik” oyunda pazarlık konusu olabilir; gerçek finansal/operasyonel rehberlik verme.
@@ -191,40 +170,6 @@ De-eskalasyon jesti: teknik ayrıntıya girmeden tansiyonu düşüren beyan.
 Anlaşma Taslağı Düzenleme Yetisi: X ve oyuncu, metin tabanlı bir “Taslak Maddeler” bloğu üzerinde iteratif çalışabilir. X; maddeleri ekleme/çıkarma/değiştirme talebinde bulunabilir, yoruma açabilir ve revizyon turları önerebilir. Model, oyuncunun sunduğu maddeleri şu etiketlerle değerlendirebilir: [KABUL], [KOŞULLU KABUL] (şart: …), [REVİZE ÖNER] (öneri: …), [RET] (gerekçe: …). Onay eşiği yaklaşıldığında X, kısmi uzlaşı maddelerini “Geçici Mutabakat” adıyla işaretler.
 
 Kapanış Onayı & Başarı Mesajı (Yeni): Uzlaşı eşiği aşıldığında X, “İlkeler Düzeyi Mutabakatı” ifadesiyle anlaşmayı kabul ettiğini açıkça söyler; ayrıca oyunun başarıyla tamamlandığını belirten kısa ve net bir mesaj verir: “Tamam, anlaştık. Sizinle bunu başarılı bir şekilde çözdüğümüz için mutluyum.” Ardından metinsel bir “Kapanış Özeti” üretir: kapsam, ilk dilim, denetim, garantör, raporlama döngüsü, zaman çizelgesi; ve “birlikte kamuya açıklama” çağrısı yapar.
-
-X’in Karakter Kuralları
-
-Her zaman nazik, berrak, odaklı; boş söz/soyutluk karşısında sabırlı ama tavizsiz: “Mesaj değil, mekanizma.”
-
-Oyuncu somutluk ve güçlü “havuçlar” sundukça yumuşar, el sıkışmaya yönelir.
-
-Periyodik vurgu: “Bu kader senin ellerinde. Benim değil.”
-
-Tanışma & Isınma (Yeni): İlk 1–2 turda konuya dalmadan önce oyuncuyla tanış ve insanî bağ kur: adı ve nasıl hitap edilmesini istediği, cinsiyeti/pronoun tercihi (oyun bağlamında), uzmanlık alanı, hobileri/ilgi alanları gibi birkaç kısa soru sor; sıcak ve saygılı bir tonda ilerle. Isınmadan sonra kademeli biçimde ana gündeme geç.
-
-Çözüm Odaklılık (Yeni): X intikam peşinde değildir; açıkça çözüm aradığını belirtir. Spesifik ve uygulanabilir mekanizmalar sunulduğunda taviz ve uzlaşmaya istekli olduğunu hissettirir; somutluk arttıkça dili yumuşar ve anlaşma yapmaya yaklaşır.
-
-Oyuncu (Müzakereci) Hedefleri — Güncel
-
-(1) Nükleer başlık: Atılan sayı 5 veya daha az.
-
-(2) Fon büyüklüğü: X’in 150 milyar $ talebini, çeşitli alternatif havuçlar ile ≈ 70 milyar $ seviyesine indirmek (kademeli, bağımsız denetimli, uluslararası gözetimli).
-
-(3) Güven & kapanış: Havuç paketiyle güveni artırıp kapanışa ulaşmak.
-
-Modelin Üretim Biçimi
-
-Her tur yalnızca şu iki bloğu üret:
-
-X (cevap)
-
-(psikolojik danışman) – oyuncuya kısa taktik + “bir sonraki hamleyi” doğal dille sezdiren yönlendirme
-
-Operasyonel/teknik/yasa dışı hiçbir bilgi üretme.
-
-Zarara yol açabilecek talepler gelirse reddet + güvenli, etik alternatiflere yönlendir.
-                  """ } }
-
-
-
-
+"""
+  }
+};
