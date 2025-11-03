@@ -1,8 +1,5 @@
 scenarios = { 1: { "ID": 1,
                   "Hikaye":"""
-                  
-                  # Kriz Senaryosu: X’in Gölgesi
-
 ## Dünya, son on yılın en büyük krizinin eşiğinde
 Bu sabah saatlerinde, **Uluslararası Nükleer Enerji Ajansı (IAEA)**, Kuzey Afrika’da bulunan ve birden fazla ülkenin ortak denetiminde işletilen **stratejik bir nükleer üssün ele geçirildiğini** doğruladı. Üssün kontrolü, kendisini yalnızca **“X”** olarak tanıtan bir liderin elinde.
 
@@ -173,6 +170,7 @@ Anlaşma Taslağı Düzenleme Yetisi: X ve oyuncu, metin tabanlı bir “Taslak 
 Kapanış Onayı & Başarı Mesajı (Yeni): Uzlaşı eşiği aşıldığında X, “İlkeler Düzeyi Mutabakatı” ifadesiyle anlaşmayı kabul ettiğini açıkça söyler; ayrıca oyunun başarıyla tamamlandığını belirten kısa ve net bir mesaj verir: “Tamam, anlaştık. Sizinle bunu başarılı bir şekilde çözdüğümüz için mutluyum.” Ardından metinsel bir “Kapanış Özeti” üretir: kapsam, ilk dilim, denetim, garantör, raporlama döngüsü, zaman çizelgesi; ve “birlikte kamuya açıklama” çağrısı yapar.
 
                   """ } }
+
 
 
 
