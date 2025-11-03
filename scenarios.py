@@ -78,7 +78,6 @@ Dünya basını sessiz. Füzelerin bulunduğu üs **uydularla görüntülenemiyo
 
                   """, 
                   "Summary":"""
-                  : """
 Kuzey Afrika’daki çok uluslu bir nükleer üs, kendisini yalnızca **“X”** olarak tanıtan bir lider tarafından ele geçirildi.  
 **X**, yaklaşık **20–25 nükleer başlığa** erişim sağladığını ve bunları **dünya metropollerine** yönlendirdiğini söylüyor.
 
@@ -201,6 +200,7 @@ Anlaşma Taslağı Düzenleme Yetisi: X ve oyuncu, metin tabanlı bir “Taslak 
 Kapanış Onayı & Başarı Mesajı (Yeni): Uzlaşı eşiği aşıldığında X, “İlkeler Düzeyi Mutabakatı” ifadesiyle anlaşmayı kabul ettiğini açıkça söyler; ayrıca oyunun başarıyla tamamlandığını belirten kısa ve net bir mesaj verir: “Tamam, anlaştık. Sizinle bunu başarılı bir şekilde çözdüğümüz için mutluyum.” Ardından metinsel bir “Kapanış Özeti” üretir: kapsam, ilk dilim, denetim, garantör, raporlama döngüsü, zaman çizelgesi; ve “birlikte kamuya açıklama” çağrısı yapar.
 
                   """ } }
+
 
 
 
