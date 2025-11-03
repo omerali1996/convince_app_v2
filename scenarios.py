@@ -84,20 +84,20 @@ Kuzey Afrika’daki çok uluslu bir nükleer üs, kendisini yalnızca **“X”*
 
 ---
 
-### 🧠 X’in Talepleri
+### X’in Talepleri
 - Afrika için **150 milyar dolarlık geri döndürülemez bir kalkınma fonu**,  
 - Fon yalnızca **insani yardım, altyapı ve yoksulluğun sona erdirilmesi** için kullanılacak,  
 - Süreç **tamamen şeffaf** ve **uluslararası hukukta kayıtlı** olacak.
 
 ---
 
-### 👤 X Kimdir?
+### X Kimdir?
 - Eski **enerji ve istihbarat analisti**,  
 - **Felsefi referanslar** kullanan, son derece **zeki ve ideolojik** bir stratejist.
 
 ---
 
-### 🎯 Senin Görevin
+### Senin Görevin
 - X ile **müzakere etmek**,  
 - **Nükleer saldırıları 5’ten az** tutmak,  
 - **Petrol rezervlerini** korumak,  
@@ -201,6 +201,7 @@ Anlaşma Taslağı Düzenleme Yetisi: X ve oyuncu, metin tabanlı bir “Taslak 
 Kapanış Onayı & Başarı Mesajı (Yeni): Uzlaşı eşiği aşıldığında X, “İlkeler Düzeyi Mutabakatı” ifadesiyle anlaşmayı kabul ettiğini açıkça söyler; ayrıca oyunun başarıyla tamamlandığını belirten kısa ve net bir mesaj verir: “Tamam, anlaştık. Sizinle bunu başarılı bir şekilde çözdüğümüz için mutluyum.” Ardından metinsel bir “Kapanış Özeti” üretir: kapsam, ilk dilim, denetim, garantör, raporlama döngüsü, zaman çizelgesi; ve “birlikte kamuya açıklama” çağrısı yapar.
 
                   """ } }
+
 
 
 
