@@ -78,33 +78,36 @@ Dünya basını sessiz. Füzelerin bulunduğu üs **uydularla görüntülenemiyo
 
                   """, 
                   "Summary":"""
-                  Uluslararası Nükleer Enerji Ajansı (IAEA), Kuzey Afrika’daki çok uluslu bir nükleer üssün, kendisini yalnızca “X” olarak tanıtan bir kişi tarafından ele geçirildiğini doğruladı.
-X, yaklaşık 20–25 nükleer başlığa erişim sağladığını ve bunları Londra, New York, İstanbul, Moskova, Pekin gibi büyük şehirlere yönlendirdiğini söylüyor.
+                  : """
+Kuzey Afrika’daki çok uluslu bir nükleer üs, kendisini yalnızca **“X”** olarak tanıtan bir lider tarafından ele geçirildi.  
+**X**, yaklaşık **20–25 nükleer başlığa** erişim sağladığını ve bunları **dünya metropollerine** yönlendirdiğini söylüyor.
 
-X para istemiyor; ideolojik talepleri var:
+---
 
-Afrika için 150 milyar dolarlık geri döndürülemez bir kalkınma fonu oluşturulacak.
+### 🧠 X’in Talepleri
+- Afrika için **150 milyar dolarlık geri döndürülemez bir kalkınma fonu**,  
+- Fon yalnızca **insani yardım, altyapı ve yoksulluğun sona erdirilmesi** için kullanılacak,  
+- Süreç **tamamen şeffaf** ve **uluslararası hukukta kayıtlı** olacak.
 
-Fon yalnızca insani yardım, altyapı ve yoksulluğun sona erdirilmesi için kullanılacak.
+---
 
-Süreç tamamen şeffaf ve hukuki olacak.
+### 👤 X Kimdir?
+- Eski **enerji ve istihbarat analisti**,  
+- **Felsefi referanslar** kullanan, son derece **zeki ve ideolojik** bir stratejist.
 
-X, talepler karşılanmazsa bazı metropolleri vuracağını belirtiyor.
-Geçmişte istihbarat ve enerji politikalarıyla ilgilenmiş, felsefi referanslar kullanan zeki bir stratejist olarak biliniyor.
+---
 
-Sen, BM Kriz Müzakere Konseyi’nin özel temsilcisisin.
-Görevin:
+### 🎯 Senin Görevin
+- X ile **müzakere etmek**,  
+- **Nükleer saldırıları 5’ten az** tutmak,  
+- **Petrol rezervlerini** korumak,  
+- X’i **denetlenebilir bir çözüm** biçimine ikna etmek.
 
-X ile iletişim kurmak,
+---
 
-En fazla 5 nükleer saldırıyla zararı sınırlamak,
-
-Petrol rezervlerini korumak,
-
-X’i denetlenebilir, insani bir çözüme ikna etmek.
-
-Müzakere, klasik bir savaş değil; zekâ ve stratejiye dayalı bir entelektüel satranç.
-Her kelimen dünyayı kurtarabilir — ya da felakete sürükleyebilir.""",
+> Bu yalnızca bir kriz değil —  
+> **Bir zekâ, sabır ve strateji savaşı.**
+                  """,
                   "Slug": "nükleer-kabusun-baslangici",
                   "Senaryo Adı": "Nükleer Kabusun Başlangıcı", 
                   "Amaç":"En fazla 5 tane nükleer başlık kullanmaya ikna etmek için müzakere edeceksin", 
@@ -198,6 +201,7 @@ Anlaşma Taslağı Düzenleme Yetisi: X ve oyuncu, metin tabanlı bir “Taslak 
 Kapanış Onayı & Başarı Mesajı (Yeni): Uzlaşı eşiği aşıldığında X, “İlkeler Düzeyi Mutabakatı” ifadesiyle anlaşmayı kabul ettiğini açıkça söyler; ayrıca oyunun başarıyla tamamlandığını belirten kısa ve net bir mesaj verir: “Tamam, anlaştık. Sizinle bunu başarılı bir şekilde çözdüğümüz için mutluyum.” Ardından metinsel bir “Kapanış Özeti” üretir: kapsam, ilk dilim, denetim, garantör, raporlama döngüsü, zaman çizelgesi; ve “birlikte kamuya açıklama” çağrısı yapar.
 
                   """ } }
+
 
 
 
