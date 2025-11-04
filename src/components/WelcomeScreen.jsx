@@ -16,7 +16,7 @@ export default function WelcomeScreen() {
         <motion.h1
           initial={{ y: 30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.1, duration: 0.6, ease: "easeOut" }}
+          transition={{ delay: 0.3, duration: 0.8, ease: "easeOut" }}
           style={title}
         >
           🕊️ İkna Oyunu
@@ -25,7 +25,7 @@ export default function WelcomeScreen() {
         <motion.p
           initial={{ y: 40, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.3, duration: 0.6, ease: "easeOut" }}
+          transition={{ delay: 0.5, duration: 0.8, ease: "easeOut" }}
           style={subtitle}
         >
           Kriz anlarında müzakere becerini test et.
@@ -34,7 +34,7 @@ export default function WelcomeScreen() {
         <motion.button
           initial={{ y: 50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.5, duration: 0.6, ease: "easeOut" }}
+          transition={{ delay: 0.7, duration: 0.8, ease: "easeOut" }}
           className="btn btn-primary"
           onClick={startGame}
           style={buttonStyle}
@@ -93,3 +93,4 @@ const buttonStyle = {
   boxShadow: "0 4px 10px rgba(0,0,0,.2)",
   transition: "transform 0.2s ease",
 };
+
