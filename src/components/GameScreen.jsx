@@ -53,62 +53,99 @@ export default function GameScreen() {
   };
 
   return (
-    <div style={container}>
-      <div style={topCard}>
-        <h2 style={title}>{currentScenario.name}</h2>
-        {/* ✅ Hikâye Markdown olarak render ediliyor */}
-        <div style={story}>
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>
-            {currentScenario.story}
-          </ReactMarkdown>
-        </div>
-      </div>
-
-      <div className="scroll-area" style={chatContainer}>
-        {messages.map((m, idx) => (
-          <div key={idx} style={m.sender === "user" ? userMessage : aiMessage}>
-            <strong style={{ opacity: 0.85 }}>
-              {m.sender === "user" ? "Sen" : "Müzakere Botu"}:
-            </strong>
-            <div style={{ marginTop: 6 }}>
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {m.text}
-              </ReactMarkdown>
-            </div>
+    <>
+      <style>{animationStyles}</style>
+      <div style={container}>
+        <div style={topCard}>
+          <h2 style={title}>{currentScenario.name}</h2>
+          <div style={story}>
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {currentScenario.story}
+            </ReactMarkdown>
           </div>
-        ))}
-        <div ref={scrollRef}></div>
-      </div>
+        </div>
 
-      {/* ✅ Mesaj kutusu ve altında butonlar */}
-      <div style={inputSection}>
-        <input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-          placeholder="Mesajınızı yazın…"
-          disabled={loading}
-          style={inputStyle}
-        />
+        <div className="scroll-area" style={chatContainer}>
+          {messages.map((m, idx) => (
+            <div 
+              key={idx} 
+              style={{
+                ...(m.sender === "user" ? userMessage : aiMessage),
+                animation: `slideIn 0.4s ease-out ${idx * 0.05}s both`
+              }}
+            >
+              <strong style={{ opacity: 0.85 }}>
+                {m.sender === "user" ? "Sen" : "Müzakere Botu"}:
+              </strong>
+              <div style={{ marginTop: 6 }}>
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {m.text}
+                </ReactMarkdown>
+              </div>
+            </div>
+          ))}
+          <div ref={scrollRef}></div>
+        </div>
 
-        <div style={buttonGroup}>
-          <button onClick={sendMessage} disabled={loading} style={buttonPrimary}>
-            Gönder
-          </button>
-          <button onClick={resetChat} style={buttonSecondary}>
-            Yeni Oturum
-          </button>
-          <button onClick={exitGame} style={buttonSecondary}>
-            Çıkış
-          </button>
+        <div style={inputSection}>
+          <input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+            placeholder="Mesajınızı yazın…"
+            disabled={loading}
+            style={inputStyle}
+          />
+
+          <div style={buttonGroup}>
+            <button onClick={sendMessage} disabled={loading} style={buttonPrimary}>
+              Gönder
+            </button>
+            <button onClick={resetChat} style={buttonSecondary}>
+              Yeni Oturum
+            </button>
+            <button onClick={exitGame} style={buttonSecondary}>
+              Çıkış
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
+/* ---------- Animation Styles ---------- */
+const animationStyles = `
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeInSlide {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+`;
+
 /* ---------- Styles ---------- */
-const container = { display: "flex", flexDirection: "column", gap: 12 };
+const container = { 
+  display: "flex", 
+  flexDirection: "column", 
+  gap: 12,
+  animation: "fadeInSlide 0.5s ease-out"
+};
 
 const topCard = {
   background: "#0f162f",
