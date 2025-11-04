@@ -52,7 +52,11 @@ export default function GameScreen() {
   };
 
   const resetChat = () => {
-    setMessages([]);
+    if (currentScenario?.first_message) {
+      setMessages([{ sender: "ai", text: currentScenario.first_message }]);
+    } else {
+      setMessages([]);
+    }
     setInput("");
   };
 
@@ -61,6 +65,7 @@ export default function GameScreen() {
       <style>{animationStyles}</style>
       <div style={container}>
         <div style={topCard}>
+          <h2 style={title}>{currentScenario.name}</h2>
           <div style={story}>
             <ReactMarkdown remarkPlugins={[remarkGfm]}>
               {currentScenario.story}
@@ -78,7 +83,7 @@ export default function GameScreen() {
               }}
             >
               <strong style={{ opacity: 0.85 }}>
-                {m.sender === "user" ? "Sen" : "Karşı Taraf"}:
+                {m.sender === "user" ? "Sen" : "Müzakere Botu"}:
               </strong>
               <div style={{ marginTop: 6 }}>
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
@@ -248,5 +253,3 @@ const empty = {
   color: "var(--muted)",
   marginTop: 40,
 };
-
-
