@@ -180,9 +180,6 @@ export default function GameScreen() {
             <button onClick={resetChat} style={buttonSecondary}>
               Yeni Oturum
             </button>
-            <button onClick={exitGame} style={buttonSecondary}>
-              Çıkış
-            </button>
             <button
               onClick={handleMicClick}
               style={{
@@ -191,6 +188,9 @@ export default function GameScreen() {
               }}
             >
               {listening ? "🔴 Dinleniyor..." : "🎤 Sesle Yaz"}
+            </button>
+            <button onClick={exitGame} style={buttonSecondary}>
+              Çıkış
             </button>
           </div>
         </div>
@@ -376,3 +376,4 @@ const pulse = {
   background: "#ff4444",
   animation: "pulse 1.5s ease-in-out infinite",
 };
+
