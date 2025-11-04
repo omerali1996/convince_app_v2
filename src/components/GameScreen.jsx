@@ -18,12 +18,12 @@ export default function GameScreen() {
   useEffect(() => {
     const SpeechRecognition =
       window.SpeechRecognition || window.webkitSpeechRecognition;
-    
+
     if (!SpeechRecognition) return;
 
     const recognition = new SpeechRecognition();
-    recognition.continuous = true; // Sürekli dinleme
-    recognition.interimResults = true; // Anlık sonuçları göster
+    recognition.continuous = true;
+    recognition.interimResults = true;
     recognition.lang = "tr-TR";
 
     recognition.onstart = () => {
@@ -38,7 +38,7 @@ export default function GameScreen() {
 
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const transcript = event.results[i][0].transcript;
-        
+
         if (event.results[i].isFinal) {
           final += transcript + " ";
         } else {
@@ -46,29 +46,25 @@ export default function GameScreen() {
         }
       }
 
-      // Final metni input'a ekle
       if (final) {
-        setInput((prev) => {
-          const newText = prev + final;
-          return newText;
-        });
+        setInput((prev) => prev + final);
       }
 
-      // Interim metni göster (henüz kesinleşmemiş)
       setInterimText(interim);
-      
+
       console.log("Final:", final);
       console.log("Interim:", interim);
     };
 
     recognition.onerror = (event) => {
       console.error("Ses tanıma hatası:", event.error);
-      
+
       if (event.error === "no-speech") {
-        // Sessizlik hatası - sadece log
         console.log("Ses algılanamadı, dinlemeye devam ediliyor...");
       } else if (event.error === "not-allowed") {
-        alert("Mikrofon izni verilmedi. Lütfen tarayıcı ayarlarından mikrofon erişimine izin verin.");
+        alert(
+          "Mikrofon izni verilmedi. Lütfen tarayıcı ayarlarından mikrofon erişimine izin verin."
+        );
         setListening(false);
         setInterimText("");
       } else {
@@ -79,7 +75,6 @@ export default function GameScreen() {
 
     recognition.onend = () => {
       console.log("Ses tanıma bitti");
-      // Eğer hala listening true ise (yani kullanıcı kapatmadıysa), yeniden başlat
       if (listening) {
         try {
           recognition.start();
@@ -117,10 +112,7 @@ export default function GameScreen() {
     const userMessage = input.trim();
     if (!userMessage || loading) return;
 
-    // Mikrofon açıksa kapat
-    if (listening) {
-      stopListening();
-    }
+    if (listening) stopListening();
 
     setMessages((prev) => [...prev, { sender: "user", text: userMessage }]);
     setInput("");
@@ -137,17 +129,17 @@ export default function GameScreen() {
       setMessages((prev) => [...prev, { sender: "ai", text: aiText }]);
     } catch (err) {
       console.error(err);
-      setMessages((prev) => [...prev, { sender: "ai", text: "Cevap alınamadı." }]);
+      setMessages((prev) => [
+        ...prev,
+        { sender: "ai", text: "Cevap alınamadı." },
+      ]);
     } finally {
       setLoading(false);
     }
   };
 
   const resetChat = () => {
-    // Mikrofon açıksa kapat
-    if (listening) {
-      stopListening();
-    }
+    if (listening) stopListening();
 
     if (currentScenario?.first_message) {
       setMessages([{ sender: "ai", text: currentScenario.first_message }]);
@@ -167,29 +159,29 @@ export default function GameScreen() {
 
   const handleMicClick = () => {
     if (!recognitionRef.current) {
-      alert("Tarayıcınız ses tanımayı desteklemiyor. Chrome veya Edge kullanmayı deneyin.");
+      alert(
+        "Tarayıcınız ses tanımayı desteklemiyor. Chrome veya Edge kullanmayı deneyin."
+      );
       return;
     }
 
     if (listening) {
-      // Dinlemeyi durdur
       stopListening();
     } else {
-      // Dinlemeyi başlat
       try {
-        setInput(""); // Input'u temizle
+        setInput("");
         recognitionRef.current.start();
       } catch (error) {
         console.error("Mikrofon başlatma hatası:", error);
-        alert("Mikrofon başlatılamadı. Lütfen sayfayı yenileyin ve tekrar deneyin.");
+        alert(
+          "Mikrofon başlatılamadı. Lütfen sayfayı yenileyin ve tekrar deneyin."
+        );
       }
     }
   };
 
   const handleStopAndConfirm = () => {
-    if (listening) {
-      stopListening();
-    }
+    if (listening) stopListening();
   };
 
   return (
@@ -206,11 +198,11 @@ export default function GameScreen() {
 
         <div className="scroll-area" style={chatContainer}>
           {messages.map((m, idx) => (
-            <div 
-              key={idx} 
+            <div
+              key={idx}
               style={{
                 ...(m.sender === "user" ? userMessage : aiMessage),
-                animation: `slideIn 0.6s ease-out ${idx * 0.08}s both`
+                animation: `slideIn 0.6s ease-out ${idx * 0.08}s both`,
               }}
             >
               <strong style={{ opacity: 0.85 }}>
@@ -228,16 +220,38 @@ export default function GameScreen() {
 
         <div style={inputSection}>
           <div style={{ position: "relative" }}>
-            <input
+            <textarea
               value={input + (interimText ? " " + interimText : "")}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-              placeholder={listening ? "Konuşun..." : "Mesajınızı yazın…"}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && e.shiftKey) {
+                  e.preventDefault();
+                  const { selectionStart, selectionEnd, value } = e.target;
+                  const newValue =
+                    value.substring(0, selectionStart) +
+                    "\n" +
+                    value.substring(selectionEnd);
+                  setInput(newValue);
+                } else if (e.key === "Enter") {
+                  e.preventDefault();
+                  sendMessage();
+                }
+              }}
+              placeholder={
+                listening
+                  ? "Konuşun..."
+                  : "Mesajınızı yazın… (Shift + Enter: Alt satır)"
+              }
               disabled={loading || listening}
+              rows={1}
               style={{
                 ...inputStyle,
                 color: listening ? "#ffbe5c" : "#fff",
                 fontStyle: interimText ? "italic" : "normal",
+                resize: "none",
+                height: "auto",
+                minHeight: 44,
+                lineHeight: "1.5em",
               }}
             />
             {listening && (
@@ -252,10 +266,18 @@ export default function GameScreen() {
           </div>
 
           <div style={buttonGroup}>
-            <button onClick={sendMessage} disabled={loading || listening} style={buttonPrimary}>
+            <button
+              onClick={sendMessage}
+              disabled={loading || listening}
+              style={buttonPrimary}
+            >
               {loading ? "Gönderiliyor..." : "Gönder"}
             </button>
-            <button onClick={resetChat} style={buttonSecondary} disabled={listening}>
+            <button
+              onClick={resetChat}
+              style={buttonSecondary}
+              disabled={listening}
+            >
               Yeni Oturum
             </button>
             <button
@@ -267,7 +289,11 @@ export default function GameScreen() {
             >
               {listening ? "🔴 Dinleniyor..." : "🗣️ Konuşun"}
             </button>
-            <button onClick={exitGame} style={buttonSecondary} disabled={listening}>
+            <button
+              onClick={exitGame}
+              style={buttonSecondary}
+              disabled={listening}
+            >
               Çıkış
             </button>
           </div>
@@ -278,7 +304,9 @@ export default function GameScreen() {
             <div style={pulse}></div>
             <div>
               <div style={{ fontWeight: 600, marginBottom: 4 }}>Konuşun...</div>
-              <div style={{ fontSize: 12, opacity: 0.8 }}>✓ işaretine basarak bitirin</div>
+              <div style={{ fontSize: 12, opacity: 0.8 }}>
+                ✓ işaretine basarak bitirin
+              </div>
             </div>
           </div>
         )}
@@ -324,11 +352,11 @@ const animationStyles = `
 `;
 
 /* ---------- Styles ---------- */
-const container = { 
-  display: "flex", 
-  flexDirection: "column", 
+const container = {
+  display: "flex",
+  flexDirection: "column",
   gap: 12,
-  animation: "fadeInSlide 0.5s ease-out"
+  animation: "fadeInSlide 0.5s ease-out",
 };
 
 const topCard = {
@@ -338,11 +366,11 @@ const topCard = {
   padding: 14,
 };
 
-const story = { 
-  marginTop: 6, 
-  color: "var(--text)", 
-  opacity: 0.95, 
-  lineHeight: 1.6 
+const story = {
+  marginTop: 6,
+  color: "var(--text)",
+  opacity: 0.95,
+  lineHeight: 1.6,
 };
 
 const chatContainer = {
@@ -478,4 +506,3 @@ const pulse = {
   background: "#ff4444",
   animation: "pulse 1.5s ease-in-out infinite",
 };
-
