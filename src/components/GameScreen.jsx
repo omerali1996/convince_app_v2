@@ -10,6 +10,7 @@ export default function GameScreen() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [listening, setListening] = useState(false);
+  const [interimText, setInterimText] = useState("");
   const scrollRef = useRef();
   const recognitionRef = useRef(null);
 
@@ -21,35 +22,71 @@ export default function GameScreen() {
     if (!SpeechRecognition) return;
 
     const recognition = new SpeechRecognition();
-    recognition.continuous = false;
-    recognition.interimResults = false;
+    recognition.continuous = true; // Sürekli dinleme
+    recognition.interimResults = true; // Anlık sonuçları göster
     recognition.lang = "tr-TR";
 
     recognition.onstart = () => {
       console.log("Ses tanıma başladı");
       setListening(true);
+      setInterimText("");
     };
 
     recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript;
-      console.log("Algılanan metin:", transcript);
-      setInput((prev) => (prev ? prev + " " + transcript : transcript));
+      let interim = "";
+      let final = "";
+
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+        
+        if (event.results[i].isFinal) {
+          final += transcript + " ";
+        } else {
+          interim += transcript;
+        }
+      }
+
+      // Final metni input'a ekle
+      if (final) {
+        setInput((prev) => {
+          const newText = prev + final;
+          return newText;
+        });
+      }
+
+      // Interim metni göster (henüz kesinleşmemiş)
+      setInterimText(interim);
+      
+      console.log("Final:", final);
+      console.log("Interim:", interim);
     };
 
     recognition.onerror = (event) => {
       console.error("Ses tanıma hatası:", event.error);
-      setListening(false);
       
       if (event.error === "no-speech") {
-        alert("Ses algılanamadı. Lütfen tekrar deneyin.");
+        // Sessizlik hatası - sadece log
+        console.log("Ses algılanamadı, dinlemeye devam ediliyor...");
       } else if (event.error === "not-allowed") {
         alert("Mikrofon izni verilmedi. Lütfen tarayıcı ayarlarından mikrofon erişimine izin verin.");
+        setListening(false);
+        setInterimText("");
+      } else {
+        setListening(false);
+        setInterimText("");
       }
     };
 
     recognition.onend = () => {
       console.log("Ses tanıma bitti");
-      setListening(false);
+      // Eğer hala listening true ise (yani kullanıcı kapatmadıysa), yeniden başlat
+      if (listening) {
+        try {
+          recognition.start();
+        } catch (error) {
+          console.log("Yeniden başlatma hatası:", error);
+        }
+      }
     };
 
     recognitionRef.current = recognition;
@@ -59,7 +96,7 @@ export default function GameScreen() {
         recognitionRef.current.stop();
       }
     };
-  }, []);
+  }, [listening]);
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -79,6 +116,11 @@ export default function GameScreen() {
   const sendMessage = async () => {
     const userMessage = input.trim();
     if (!userMessage || loading) return;
+
+    // Mikrofon açıksa kapat
+    if (listening) {
+      stopListening();
+    }
 
     setMessages((prev) => [...prev, { sender: "user", text: userMessage }]);
     setInput("");
@@ -102,12 +144,25 @@ export default function GameScreen() {
   };
 
   const resetChat = () => {
+    // Mikrofon açıksa kapat
+    if (listening) {
+      stopListening();
+    }
+
     if (currentScenario?.first_message) {
       setMessages([{ sender: "ai", text: currentScenario.first_message }]);
     } else {
       setMessages([]);
     }
     setInput("");
+  };
+
+  const stopListening = () => {
+    if (recognitionRef.current && listening) {
+      setListening(false);
+      setInterimText("");
+      recognitionRef.current.stop();
+    }
   };
 
   const handleMicClick = () => {
@@ -117,15 +172,23 @@ export default function GameScreen() {
     }
 
     if (listening) {
-      recognitionRef.current.stop();
-      setListening(false);
+      // Dinlemeyi durdur
+      stopListening();
     } else {
+      // Dinlemeyi başlat
       try {
+        setInput(""); // Input'u temizle
         recognitionRef.current.start();
       } catch (error) {
         console.error("Mikrofon başlatma hatası:", error);
         alert("Mikrofon başlatılamadı. Lütfen sayfayı yenileyin ve tekrar deneyin.");
       }
+    }
+  };
+
+  const handleStopAndConfirm = () => {
+    if (listening) {
+      stopListening();
     }
   };
 
@@ -164,21 +227,39 @@ export default function GameScreen() {
         </div>
 
         <div style={inputSection}>
-          <input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-            placeholder="Mesajınızı yazın…"
-            disabled={loading}
-            style={inputStyle}
-          />
+          <div style={{ position: "relative" }}>
+            <input
+              value={input + (interimText ? " " + interimText : "")}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+              placeholder={listening ? "Konuşun..." : "Mesajınızı yazın…"}
+              disabled={loading || listening}
+              style={{
+                ...inputStyle,
+                color: listening ? "#ffbe5c" : "#fff",
+                fontStyle: interimText ? "italic" : "normal",
+              }}
+            />
+            {listening && (
+              <button
+                onClick={handleStopAndConfirm}
+                style={stopButton}
+                title="Konuşmayı bitir ve onayla"
+              >
+                ✓
+              </button>
+            )}
+          </div>
 
           <div style={buttonGroup}>
-            <button onClick={sendMessage} disabled={loading} style={buttonPrimary}>
-              Gönder
+            <button onClick={sendMessage} disabled={loading || listening} style={buttonPrimary}>
+              {loading ? "Gönderiliyor..." : "Gönder"}
             </button>
-            <button onClick={resetChat} style={buttonSecondary}>
+            <button onClick={resetChat} style={buttonSecondary} disabled={listening}>
               Yeni Oturum
+            </button>
+            <button onClick={exitGame} style={buttonSecondary} disabled={listening}>
+              Çıkış
             </button>
             <button
               onClick={handleMicClick}
@@ -189,16 +270,16 @@ export default function GameScreen() {
             >
               {listening ? "🔴 Dinleniyor..." : "🎤 Sesle Yaz"}
             </button>
-            <button onClick={exitGame} style={buttonSecondary}>
-              Çıkış
-            </button>
           </div>
         </div>
 
         {listening && (
           <div style={listeningIndicator}>
             <div style={pulse}></div>
-            <span>Konuşun...</span>
+            <div>
+              <div style={{ fontWeight: 600, marginBottom: 4 }}>Konuşun...</div>
+              <div style={{ fontSize: 12, opacity: 0.8 }}>✓ işaretine basarak bitirin</div>
+            </div>
           </div>
         )}
       </div>
@@ -313,11 +394,33 @@ const inputSection = {
 const inputStyle = {
   width: "100%",
   padding: "10px 12px",
+  paddingRight: "50px",
   borderRadius: 12,
   border: "1px solid rgba(255,255,255,0.15)",
   background: "#0f162f",
   color: "#fff",
   fontSize: 15,
+};
+
+const stopButton = {
+  position: "absolute",
+  right: 10,
+  top: "50%",
+  transform: "translateY(-50%)",
+  background: "#2e8b57",
+  border: "none",
+  borderRadius: "50%",
+  width: 32,
+  height: 32,
+  cursor: "pointer",
+  color: "#fff",
+  fontSize: 18,
+  fontWeight: "bold",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  boxShadow: "0 2px 8px rgba(46, 139, 87, 0.4)",
+  transition: "all 0.2s",
 };
 
 const buttonGroup = {
@@ -365,7 +468,6 @@ const listeningIndicator = {
   alignItems: "center",
   gap: 10,
   boxShadow: "0 4px 20px rgba(46, 139, 87, 0.4)",
-  fontWeight: 600,
   zIndex: 1000,
 };
 
@@ -376,4 +478,3 @@ const pulse = {
   background: "#ff4444",
   animation: "pulse 1.5s ease-in-out infinite",
 };
-
