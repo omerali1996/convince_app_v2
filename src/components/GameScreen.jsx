@@ -9,7 +9,28 @@ export default function GameScreen() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [listening, setListening] = useState(false);
   const scrollRef = useRef();
+
+  // --- Speech Recognition Setup ---
+  const SpeechRecognition =
+    window.SpeechRecognition || window.webkitSpeechRecognition;
+  const recognition = SpeechRecognition ? new SpeechRecognition() : null;
+
+  useEffect(() => {
+    if (!recognition) return;
+
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = "tr-TR";
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      setInput((prev) => (prev ? prev + " " + transcript : transcript));
+    };
+
+    recognition.onend = () => setListening(false);
+  }, []);
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -45,7 +66,10 @@ export default function GameScreen() {
       setMessages((prev) => [...prev, { sender: "ai", text: aiText }]);
     } catch (err) {
       console.error(err);
-      setMessages((prev) => [...prev, { sender: "ai", text: "Cevap alınamadı." }]);
+      setMessages((prev) => [
+        ...prev,
+        { sender: "ai", text: "Cevap alınamadı." },
+      ]);
     } finally {
       setLoading(false);
     }
@@ -58,6 +82,20 @@ export default function GameScreen() {
       setMessages([]);
     }
     setInput("");
+  };
+
+  const handleMicClick = () => {
+    if (!recognition) {
+      alert("Tarayıcınız ses tanımayı desteklemiyor.");
+      return;
+    }
+    if (listening) {
+      recognition.stop();
+      setListening(false);
+    } else {
+      recognition.start();
+      setListening(true);
+    }
   };
 
   return (
@@ -74,11 +112,11 @@ export default function GameScreen() {
 
         <div className="scroll-area" style={chatContainer}>
           {messages.map((m, idx) => (
-            <div 
-              key={idx} 
+            <div
+              key={idx}
               style={{
                 ...(m.sender === "user" ? userMessage : aiMessage),
-                animation: `slideIn 0.6s ease-out ${idx * 0.08}s both`
+                animation: `slideIn 0.6s ease-out ${idx * 0.08}s both`,
               }}
             >
               <strong style={{ opacity: 0.85 }}>
@@ -95,13 +133,26 @@ export default function GameScreen() {
         </div>
 
         <div style={inputSection}>
-          <input
+          {/* Çok satırlı mesaj kutusu */}
+          <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-            placeholder="Mesajınızı yazın…"
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+              }
+            }}
+            placeholder="Mesajınızı yazın… (Göndermek için Enter, satır atlamak için Shift + Enter)"
             disabled={loading}
-            style={inputStyle}
+            style={{
+              ...inputStyle,
+              resize: "none",
+              height: "auto",
+              minHeight: 50,
+              lineHeight: 1.5,
+              overflow: "hidden",
+            }}
           />
 
           <div style={buttonGroup}>
@@ -113,6 +164,15 @@ export default function GameScreen() {
             </button>
             <button onClick={exitGame} style={buttonSecondary}>
               Çıkış
+            </button>
+            <button
+              onClick={handleMicClick}
+              style={{
+                ...buttonSecondary,
+                background: listening ? "#2e8b57" : "#182240",
+              }}
+            >
+              {listening ? "🎙️ Dinleniyor..." : "🎤 Sesle Yaz"}
             </button>
           </div>
         </div>
@@ -147,11 +207,11 @@ const animationStyles = `
 `;
 
 /* ---------- Styles ---------- */
-const container = { 
-  display: "flex", 
-  flexDirection: "column", 
+const container = {
+  display: "flex",
+  flexDirection: "column",
   gap: 12,
-  animation: "fadeInSlide 0.5s ease-out"
+  animation: "fadeInSlide 0.5s ease-out",
 };
 
 const topCard = {
@@ -161,8 +221,12 @@ const topCard = {
   padding: 14,
 };
 
-const title = { fontSize: 22 };
-const story = { marginTop: 6, color: "var(--text)", opacity: 0.95, lineHeight: 1.6 };
+const story = {
+  marginTop: 6,
+  color: "var(--text)",
+  opacity: 0.95,
+  lineHeight: 1.6,
+};
 
 const chatContainer = {
   flex: 1,
@@ -183,6 +247,7 @@ const bubbleBase = {
   borderRadius: 16,
   maxWidth: "85%",
   wordWrap: "break-word",
+  whiteSpace: "pre-wrap",
   boxShadow: "0 8px 24px rgba(0,0,0,.22)",
 };
 
@@ -252,5 +317,3 @@ const empty = {
   color: "var(--muted)",
   marginTop: 40,
 };
-
-
