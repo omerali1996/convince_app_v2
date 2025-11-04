@@ -68,7 +68,7 @@ export default function ScenariosScreen() {
                     }}
                   >
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                      {preview.summary}
+                      {preview.story}
                     </ReactMarkdown>
                   </div>
                   {!expanded && (
@@ -228,3 +228,4 @@ const scenarioBtn = (s, preview) => ({
   color: "white",
   fontWeight: preview?.id === s.id ? 600 : 400,
 });
+
