@@ -1,9 +1,12 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useGame } from "../context/GameContext";
+import api from "../api";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 export default function GameScreen() {
-  const [messages, setMessages] = useState([
-    { sender: "ai", text: "Merhaba! Sesli yazma özelliğini test edebilirsiniz." }
-  ]);
+  const { currentScenario, exitGame } = useGame();
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [listening, setListening] = useState(false);
@@ -41,8 +44,6 @@ export default function GameScreen() {
         alert("Ses algılanamadı. Lütfen tekrar deneyin.");
       } else if (event.error === "not-allowed") {
         alert("Mikrofon izni verilmedi. Lütfen tarayıcı ayarlarından mikrofon erişimine izin verin.");
-      } else {
-        alert("Ses tanıma hatası: " + event.error);
       }
     };
 
@@ -64,6 +65,17 @@ export default function GameScreen() {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  useEffect(() => {
+    if (currentScenario?.first_message) {
+      setMessages([{ sender: "ai", text: currentScenario.first_message }]);
+    } else {
+      setMessages([]);
+    }
+    setInput("");
+  }, [currentScenario?.id]);
+
+  if (!currentScenario) return <div style={empty}>Senaryo seçilmedi.</div>;
+
   const sendMessage = async () => {
     const userMessage = input.trim();
     if (!userMessage || loading) return;
@@ -72,18 +84,29 @@ export default function GameScreen() {
     setInput("");
     setLoading(true);
 
-    // Simüle edilmiş yanıt
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        { sender: "ai", text: "Mesajınız alındı: " + userMessage },
-      ]);
+    try {
+      const res = await api.post("/api/ask", {
+        user_input: userMessage,
+        scenario_id: currentScenario.id,
+        history: messages,
+      });
+
+      const aiText = (res.data?.answer || "").trim();
+      setMessages((prev) => [...prev, { sender: "ai", text: aiText }]);
+    } catch (err) {
+      console.error(err);
+      setMessages((prev) => [...prev, { sender: "ai", text: "Cevap alınamadı." }]);
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   const resetChat = () => {
-    setMessages([{ sender: "ai", text: "Yeni oturum başladı." }]);
+    if (currentScenario?.first_message) {
+      setMessages([{ sender: "ai", text: currentScenario.first_message }]);
+    } else {
+      setMessages([]);
+    }
     setInput("");
   };
 
@@ -112,72 +135,63 @@ export default function GameScreen() {
       <div style={container}>
         <div style={topCard}>
           <div style={story}>
-            <h3 style={{ margin: "0 0 10px 0", color: "#ffbe5c" }}>Sesli Yazma Test</h3>
-            <p style={{ margin: 0, opacity: 0.8 }}>
-              🎤 Mikrofon butonuna tıklayın ve konuşmaya başlayın. 
-              Konuştuğunuz metin otomatik olarak kutucuğa yazılacak.
-            </p>
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {currentScenario.story}
+            </ReactMarkdown>
           </div>
         </div>
 
         <div className="scroll-area" style={chatContainer}>
           {messages.map((m, idx) => (
-            <div
-              key={idx}
+            <div 
+              key={idx} 
               style={{
                 ...(m.sender === "user" ? userMessage : aiMessage),
-                animation: `slideIn 0.6s ease-out ${idx * 0.08}s both`,
+                animation: `slideIn 0.6s ease-out ${idx * 0.08}s both`
               }}
             >
               <strong style={{ opacity: 0.85 }}>
                 {m.sender === "user" ? "Sen" : "Karşı Taraf"}:
               </strong>
-              <div style={{ marginTop: 6 }}>{m.text}</div>
+              <div style={{ marginTop: 6 }}>
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {m.text}
+                </ReactMarkdown>
+              </div>
             </div>
           ))}
           <div ref={scrollRef}></div>
         </div>
 
         <div style={inputSection}>
-          <textarea
+          <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-              }
-            }}
-            placeholder="Mesajınızı yazın veya 🎤 butonuna basıp konuşun… (Enter ile gönder, Shift+Enter ile satır atla)"
+            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+            placeholder="Mesajınızı yazın…"
             disabled={loading}
-            style={{
-              ...inputStyle,
-              resize: "vertical",
-              minHeight: 60,
-              maxHeight: 150,
-              lineHeight: 1.5,
-            }}
+            style={inputStyle}
           />
 
           <div style={buttonGroup}>
             <button onClick={sendMessage} disabled={loading} style={buttonPrimary}>
-              {loading ? "Gönderiliyor..." : "Gönder"}
+              Gönder
             </button>
-            <div style={{ display: "flex", gap: 8 }}>
-              <button onClick={resetChat} style={buttonSecondary}>
-                Yeni Oturum
-              </button>
-              <button
-                onClick={handleMicClick}
-                style={{
-                  ...buttonSecondary,
-                  background: listening ? "#2e8b57" : "#182240",
-                  flex: 1,
-                }}
-              >
-                {listening ? "🔴 Dinleniyor..." : "🎤 Sesle Yaz"}
-              </button>
-            </div>
+            <button onClick={resetChat} style={buttonSecondary}>
+              Yeni Oturum
+            </button>
+            <button onClick={exitGame} style={buttonSecondary}>
+              Çıkış
+            </button>
+            <button
+              onClick={handleMicClick}
+              style={{
+                ...buttonSecondary,
+                background: listening ? "#2e8b57" : "#182240",
+              }}
+            >
+              {listening ? "🔴 Dinleniyor..." : "🎤 Sesle Yaz"}
+            </button>
           </div>
         </div>
 
@@ -229,48 +243,46 @@ const animationStyles = `
 `;
 
 /* ---------- Styles ---------- */
-const container = {
-  display: "flex",
-  flexDirection: "column",
+const container = { 
+  display: "flex", 
+  flexDirection: "column", 
   gap: 12,
-  animation: "fadeInSlide 0.5s ease-out",
-  maxWidth: 800,
-  margin: "0 auto",
-  padding: 20,
+  animation: "fadeInSlide 0.5s ease-out"
 };
 
 const topCard = {
   background: "#0f162f",
   border: "1px solid rgba(255,255,255,.06)",
   borderRadius: 16,
-  padding: 20,
+  padding: 14,
 };
 
-const story = {
-  color: "var(--text)",
-  lineHeight: 1.6,
+const story = { 
+  marginTop: 6, 
+  color: "var(--text)", 
+  opacity: 0.95, 
+  lineHeight: 1.6 
 };
 
 const chatContainer = {
   flex: 1,
-  padding: 16,
+  padding: 12,
   border: "1px solid rgba(255,255,255,.06)",
   borderRadius: 16,
   background: "#0f162f",
-  minHeight: 300,
-  maxHeight: 500,
+  minHeight: 260,
+  maxHeight: 420,
   display: "flex",
   flexDirection: "column",
-  gap: 12,
+  gap: 10,
   overflowY: "auto",
 };
 
 const bubbleBase = {
-  padding: "12px 16px",
+  padding: "10px 14px",
   borderRadius: 16,
   maxWidth: "85%",
   wordWrap: "break-word",
-  whiteSpace: "pre-wrap",
   boxShadow: "0 8px 24px rgba(0,0,0,.22)",
 };
 
@@ -300,13 +312,12 @@ const inputSection = {
 
 const inputStyle = {
   width: "100%",
-  padding: "12px 14px",
+  padding: "10px 12px",
   borderRadius: 12,
   border: "1px solid rgba(255,255,255,0.15)",
   background: "#0f162f",
   color: "#fff",
   fontSize: 15,
-  fontFamily: "inherit",
 };
 
 const buttonGroup = {
@@ -319,22 +330,27 @@ const buttonPrimary = {
   background: "linear-gradient(180deg, #ffbe5c, #ffb84c)",
   border: "none",
   borderRadius: 10,
-  padding: "12px 16px",
+  padding: "10px 12px",
   cursor: "pointer",
   color: "#101010",
   fontWeight: 600,
-  fontSize: 15,
 };
 
 const buttonSecondary = {
   background: "#182240",
   border: "1px solid rgba(255,255,255,0.1)",
   borderRadius: 10,
-  padding: "12px 16px",
+  padding: "10px 12px",
   cursor: "pointer",
   color: "#eaf0ff",
   fontWeight: 500,
-  fontSize: 14,
+};
+
+const empty = {
+  textAlign: "center",
+  fontSize: 18,
+  color: "var(--muted)",
+  marginTop: 40,
 };
 
 const listeningIndicator = {
