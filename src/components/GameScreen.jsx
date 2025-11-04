@@ -3,6 +3,7 @@ import { useGame } from "../context/GameContext";
 import api from "../api";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { motion, AnimatePresence } from "framer-motion"; // ✅ eklendi
 
 export default function GameScreen() {
   const { currentScenario, exitGame } = useGame();
@@ -56,7 +57,6 @@ export default function GameScreen() {
     <div style={container}>
       <div style={topCard}>
         <h2 style={title}>{currentScenario.name}</h2>
-        {/* ✅ Hikâye Markdown olarak render ediliyor */}
         <div style={story}>
           <ReactMarkdown remarkPlugins={[remarkGfm]}>
             {currentScenario.story}
@@ -65,22 +65,30 @@ export default function GameScreen() {
       </div>
 
       <div className="scroll-area" style={chatContainer}>
-        {messages.map((m, idx) => (
-          <div key={idx} style={m.sender === "user" ? userMessage : aiMessage}>
-            <strong style={{ opacity: 0.85 }}>
-              {m.sender === "user" ? "Sen" : "Müzakere Botu"}:
-            </strong>
-            <div style={{ marginTop: 6 }}>
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {m.text}
-              </ReactMarkdown>
-            </div>
-          </div>
-        ))}
+        <AnimatePresence initial={false}>
+          {messages.map((m, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.35 }}
+              style={m.sender === "user" ? userMessage : aiMessage}
+            >
+              <strong style={{ opacity: 0.85 }}>
+                {m.sender === "user" ? "Sen" : "Müzakere Botu"}:
+              </strong>
+              <div style={{ marginTop: 6 }}>
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {m.text}
+                </ReactMarkdown>
+              </div>
+            </motion.div>
+          ))}
+        </AnimatePresence>
         <div ref={scrollRef}></div>
       </div>
 
-      {/* ✅ Mesaj kutusu ve altında butonlar */}
       <div style={inputSection}>
         <input
           value={input}
@@ -106,105 +114,3 @@ export default function GameScreen() {
     </div>
   );
 }
-
-/* ---------- Styles ---------- */
-const container = { display: "flex", flexDirection: "column", gap: 12 };
-
-const topCard = {
-  background: "#0f162f",
-  border: "1px solid rgba(255,255,255,.06)",
-  borderRadius: 16,
-  padding: 14,
-};
-
-const title = { fontSize: 22 };
-const story = { marginTop: 6, color: "var(--text)", opacity: 0.95, lineHeight: 1.6 };
-
-const chatContainer = {
-  flex: 1,
-  padding: 12,
-  border: "1px solid rgba(255,255,255,.06)",
-  borderRadius: 16,
-  background: "#0f162f",
-  minHeight: 260,
-  maxHeight: 420,
-  display: "flex",
-  flexDirection: "column",
-  gap: 10,
-  overflowY: "auto",
-};
-
-const bubbleBase = {
-  padding: "10px 14px",
-  borderRadius: 16,
-  maxWidth: "85%",
-  wordWrap: "break-word",
-  boxShadow: "0 8px 24px rgba(0,0,0,.22)",
-};
-
-const userMessage = {
-  ...bubbleBase,
-  alignSelf: "flex-end",
-  background: "linear-gradient(180deg, #ffbe5c, #ffb84c)",
-  color: "#101010",
-  borderTopRightRadius: 4,
-};
-
-const aiMessage = {
-  ...bubbleBase,
-  alignSelf: "flex-start",
-  background: "#121a34",
-  color: "#eaf0ff",
-  borderTopLeftRadius: 4,
-  border: "1px solid rgba(255,255,255,.06)",
-};
-
-const inputSection = {
-  display: "flex",
-  flexDirection: "column",
-  gap: 10,
-  marginTop: 12,
-};
-
-const inputStyle = {
-  width: "100%",
-  padding: "10px 12px",
-  borderRadius: 12,
-  border: "1px solid rgba(255,255,255,0.15)",
-  background: "#0f162f",
-  color: "#fff",
-  fontSize: 15,
-};
-
-const buttonGroup = {
-  display: "flex",
-  flexDirection: "column",
-  gap: 8,
-};
-
-const buttonPrimary = {
-  background: "linear-gradient(180deg, #ffbe5c, #ffb84c)",
-  border: "none",
-  borderRadius: 10,
-  padding: "10px 12px",
-  cursor: "pointer",
-  color: "#101010",
-  fontWeight: 600,
-};
-
-const buttonSecondary = {
-  background: "#182240",
-  border: "1px solid rgba(255,255,255,0.1)",
-  borderRadius: 10,
-  padding: "10px 12px",
-  cursor: "pointer",
-  color: "#eaf0ff",
-  fontWeight: 500,
-};
-
-const empty = {
-  textAlign: "center",
-  fontSize: 18,
-  color: "var(--muted)",
-  marginTop: 40,
-};
