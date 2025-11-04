@@ -16,7 +16,11 @@ export default function GameScreen() {
   }, [messages]);
 
   useEffect(() => {
-    setMessages([]);
+    if (currentScenario?.first_message) {
+      setMessages([{ sender: "ai", text: currentScenario.first_message }]);
+    } else {
+      setMessages([]);
+    }
     setInput("");
   }, [currentScenario?.id]);
 
@@ -75,7 +79,7 @@ export default function GameScreen() {
               }}
             >
               <strong style={{ opacity: 0.85 }}>
-                {m.sender === "user" ? "Sen" : "..."}:
+                {m.sender === "user" ? "Sen" : "Müzakere Botu"}:
               </strong>
               <div style={{ marginTop: 6 }}>
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
@@ -245,4 +249,3 @@ const empty = {
   color: "var(--muted)",
   marginTop: 40,
 };
-
