@@ -61,7 +61,6 @@ export default function GameScreen() {
       <style>{animationStyles}</style>
       <div style={container}>
         <div style={topCard}>
-          <h2 style={title}>{currentScenario.name}</h2>
           <div style={story}>
             <ReactMarkdown remarkPlugins={[remarkGfm]}>
               {currentScenario.story}
@@ -249,4 +248,5 @@ const empty = {
   color: "var(--muted)",
   marginTop: 40,
 };
+
 
