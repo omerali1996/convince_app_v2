@@ -71,7 +71,7 @@ export default function GameScreen() {
               key={idx} 
               style={{
                 ...(m.sender === "user" ? userMessage : aiMessage),
-                animation: `slideIn 0.4s ease-out ${idx * 0.05}s both`
+                animation: `slideIn 0.6s ease-out ${idx * 0.08}s both`
               }}
             >
               <strong style={{ opacity: 0.85 }}>
@@ -119,7 +119,7 @@ const animationStyles = `
   @keyframes slideIn {
     from {
       opacity: 0;
-      transform: translateY(20px);
+      transform: translateY(40px);
     }
     to {
       opacity: 1;
