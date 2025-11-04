@@ -82,7 +82,7 @@ export default function GameScreen() {
               }}
             >
               <strong style={{ opacity: 0.85 }}>
-                {m.sender === "user" ? "Sen" : "Müzakere Botu"}:
+                {m.sender === "user" ? "Sen" : "Karşı Taraf"}:
               </strong>
               <div style={{ marginTop: 6 }}>
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
@@ -252,4 +252,5 @@ const empty = {
   color: "var(--muted)",
   marginTop: 40,
 };
+
 
