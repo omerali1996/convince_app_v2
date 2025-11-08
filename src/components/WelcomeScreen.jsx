@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useGame } from "../context/GameContext";
 import { motion } from "framer-motion";
 
@@ -6,6 +6,7 @@ export default function WelcomeScreen() {
   const { startGame } = useGame();
   const [displayedText, setDisplayedText] = useState("");
   const [isComplete, setIsComplete] = useState(false);
+  const audioContextRef = useRef(null);
 
   const fullText = `Hoş geldin.
 Hayat, her gün sayısız küçük müzakerenin içinde geçiyor.
@@ -17,19 +18,56 @@ Her senaryo, iletişim tarzını güçlendirmen için bir meydan okuma.
 Burada amaç sadece kendini tanımak değil — daha stratejik, daha etkili, daha güçlü bir müzakereci olmak.
 Hazırsan, oyun başlasın. 🧠💥`;
 
+  // Daktilo sesi oluşturma fonksiyonu
+  const playTypeSound = () => {
+    if (!audioContextRef.current) {
+      audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    
+    const audioContext = audioContextRef.current;
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    // Daktilo sesi için parametreler
+    oscillator.frequency.value = Math.random() * 100 + 400; // 400-500 Hz arası rastgele
+    oscillator.type = 'square';
+    
+    gainNode.gain.setValueAtTime(0.05, audioContext.currentTime); // Düşük ses seviyesi
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.05);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.05);
+  };
+
   useEffect(() => {
     let index = 0;
     const interval = setInterval(() => {
       if (index < fullText.length) {
         setDisplayedText(fullText.slice(0, index + 1));
+        
+        // Boşluk ve satır başı dışındaki karakterlerde ses çal
+        const currentChar = fullText[index];
+        if (currentChar !== ' ' && currentChar !== '\n') {
+          playTypeSound();
+        }
+        
         index++;
       } else {
         setIsComplete(true);
         clearInterval(interval);
       }
-    }, 30); // Her 30ms'de bir karakter ekle (hızı buradan ayarlayabilirsiniz)
+    }, 30); // Her 30ms'de bir karakter ekle
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      // AudioContext'i temizle
+      if (audioContextRef.current) {
+        audioContextRef.current.close();
+      }
+    };
   }, []);
 
   return (
