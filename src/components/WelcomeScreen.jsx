@@ -5,15 +5,15 @@ import { motion } from "framer-motion";
 import { useGame } from "../context/GameContext";
 
 export default function WelcomeScreen() {
+  const { startGame } = useGame(); // 👈 Context'ten al
   const [displayedText, setDisplayedText] = useState("");
-  const [isComplete, setIsComplete] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [showButton, setShowButton] = useState(false);
 
-  // 🔊 Tek bir Audio nesnesi + sabit aralıklı (metronom) tetikleme
+  // 🔊 Tek Audio + sabit aralıklı tetikleme
   const keyAudioRef = useRef(null);
-  const nextTickRef = useRef(0);          // bir sonraki çalınabilecek zaman damgası (ms)
-  const CLICK_INTERVAL = 180;             // ms — sabit aralık (hızlanma hissini engeller)
+  const nextTickRef = useRef(0);
+  const CLICK_INTERVAL = 180; // ms
 
   const fullText = `Hoş geldin.
 Hayat, her gün sayısız küçük müzakerenin içinde geçiyor.
@@ -28,15 +28,13 @@ Hazırsan, oyun başlasın. 🧠💥`;
   const playKeySound = () => {
     const a = keyAudioRef.current;
     if (!a) return;
-
     const now = performance.now();
-    if (now < nextTickRef.current) return; // metronom: henüz zamanı değil
-    if (!a.paused) return;                 // zaten çalıyorsa üstüne binme
-
+    if (now < nextTickRef.current) return; // metronom
+    if (!a.paused) return;                 // üst üste bindirme
     try {
       a.volume = 0.06;
-      a.playbackRate = 1.0;               // sabit hız — hızlanma hissini engelle
-      a.currentTime = 0;                  // sadece PAUSED iken başa sar
+      a.playbackRate = 1.0;
+      a.currentTime = 0;
       a.play().catch(() => {});
       nextTickRef.current = now + CLICK_INTERVAL;
     } catch {}
@@ -52,7 +50,6 @@ Hazırsan, oyun başlasın. 🧠💥`;
   };
 
   useEffect(() => {
-    // Tek ses kaynağı
     keyAudioRef.current = new Audio("/sounds/mechanical-key.mp3");
     keyAudioRef.current.preload = "auto";
     keyAudioRef.current.loop = false;
@@ -65,34 +62,29 @@ Hazırsan, oyun başlasın. 🧠💥`;
         if (index < fullText.length) {
           setDisplayedText(fullText.slice(0, index + 1));
           const ch = fullText[index];
-
-          // Yazı hızı 50ms — klik sadece harf/işaretlerde, metronom uygunsa
           if (ch.trim() !== "" && ch !== "\n") playKeySound();
-
           index++;
         } else {
-          setIsComplete(true);
           setIsTyping(false);
           clearInterval(interval);
-          stopKeySound();                      // yazı bitince kesin durdur
+          stopKeySound();                      // yazı bitince ses durdur
           setTimeout(() => setShowButton(true), 500);
         }
-      }, 50); // yazı akış hızı aynı
+      }, 50);
 
-      // cleanup interval
       return () => clearInterval(interval);
     }, 1200);
 
     return () => {
       clearTimeout(startTimeout);
-      stopKeySound();          // unmount temizliği
+      stopKeySound();
       keyAudioRef.current = null;
     };
   }, []);
 
   const handleStart = () => {
-    console.log("Oyun başladı!");
-    // burada route değişimi / state geçişi vb. ekleyebilirsin
+    stopKeySound(); // güvenli kapanış
+    startGame();    // 👈 welcome → scenarios
   };
 
   return (
@@ -219,4 +211,3 @@ if (typeof document !== "undefined") {
     document.head.appendChild(styleSheet);
   }
 }
-
