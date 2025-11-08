@@ -1,14 +1,13 @@
-"use client";
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 
 export default function WelcomeScreen() {
   const [displayedText, setDisplayedText] = useState("");
+  const [isComplete, setIsComplete] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [showButton, setShowButton] = useState(false);
 
-  const keyAudioRef = useRef<HTMLAudioElement | null>(null);
-  const lastSoundTsRef = useRef<number>(0);
+  const keySoundRef = useRef(null);
 
   const fullText = `Hoş geldin.
 Hayat, her gün sayısız küçük müzakerenin içinde geçiyor.
@@ -20,38 +19,18 @@ Her senaryo, iletişim tarzını güçlendirmen için bir meydan okuma.
 Burada amaç sadece kendini tanımak değil — daha stratejik, daha etkili, daha güçlü bir müzakereci olmak.
 Hazırsan, oyun başlasın. 🧠💥`;
 
-  // Sesi tek nesneyle yönet: throttle + reset + yavaşlatılmış playbackRate
   const playKeySound = () => {
-    const now = performance.now();
-    // en az 150ms arayla çal -> "biraz daha yavaş" tıklar
-    if (now - lastSoundTsRef.current < 150) return;
-    lastSoundTsRef.current = now;
-
-    const a = keyAudioRef.current;
-    if (!a) return;
-    try {
-      a.pause();            // üst üste binmeyi engelle
-      a.currentTime = 0;    // başa sar
-      a.volume = 0.06;
-      a.playbackRate = 0.85; // biraz daha yavaş
-      a.play().catch(() => {});
-    } catch {}
-  };
-
-  const stopKeySound = () => {
-    const a = keyAudioRef.current;
-    if (!a) return;
-    try {
-      a.pause();
-      a.currentTime = 0;
-    } catch {}
+    if (keySoundRef.current) {
+      const sound = keySoundRef.current.cloneNode();
+      sound.volume = 0.06;
+      sound.playbackRate = 0.9;
+      sound.play().catch(err => console.log("Ses çalınamadı:", err));
+    }
   };
 
   useEffect(() => {
-    // tek audio nesnesi
-    keyAudioRef.current = new Audio("/sounds/mechanical-key.mp3");
-    keyAudioRef.current.preload = "auto";
-    keyAudioRef.current.loop = false;
+    keySoundRef.current = new Audio("/sounds/mechanical-key.mp3");
+    keySoundRef.current.preload = "auto";
 
     const startTimeout = setTimeout(() => {
       setIsTyping(true);
@@ -61,30 +40,36 @@ Hazırsan, oyun başlasın. 🧠💥`;
         if (index < fullText.length) {
           setDisplayedText(fullText.slice(0, index + 1));
 
-          // boşluk ve satır sonlarında ses çalma; metin hızı 50ms, ses throttle ile daha yavaş
-          const ch = fullText[index];
-          if (ch.trim() !== "" && ch !== "\n") {
+          const currentChar = fullText[index];
+          // Boşluk, satır sonu veya emoji değilse ve her 10 karakterde bir ses çal
+          if (currentChar.trim() !== "" && currentChar !== "\n" && index % 10 === 0) {
             playKeySound();
           }
 
           index++;
         } else {
-          // yazım bitti
+          setIsComplete(true);
           setIsTyping(false);
           clearInterval(interval);
-          stopKeySound();               // <<< kesin durdur
+
+          if (keySoundRef.current) {
+            keySoundRef.current.pause();
+            keySoundRef.current = null;
+          }
+
           setTimeout(() => setShowButton(true), 500);
         }
-      }, 50); // yazı hızı aynı
+      }, 50); // 50ms → hızlı akış
 
-      // cleanup
       return () => clearInterval(interval);
     }, 1200);
 
     return () => {
       clearTimeout(startTimeout);
-      stopKeySound();
-      keyAudioRef.current = null;
+      if (keySoundRef.current) {
+        keySoundRef.current.pause();
+        keySoundRef.current = null;
+      }
     };
   }, []);
 
@@ -134,7 +119,7 @@ Hazırsan, oyun başlasın. 🧠💥`;
   );
 }
 
-/* ---------- Styles (seninkiyle aynı) ---------- */
+/* ---------- Styles ---------- */
 const wrap = {
   display: "flex",
   alignItems: "center",
@@ -164,7 +149,9 @@ const title = {
   letterSpacing: "0.5px",
 };
 
-const textContainer = { marginBottom: 32 };
+const textContainer = {
+  marginBottom: 32,
+};
 
 const subtitle = {
   fontSize: 16,
@@ -201,17 +188,18 @@ const buttonStyle = {
   textTransform: "uppercase",
 };
 
-if (typeof document !== "undefined") {
+if (typeof document !== 'undefined') {
   const styleSheet = document.createElement("style");
   styleSheet.textContent = `
     @keyframes blink {
       0%, 50% { opacity: 1; }
       51%, 100% { opacity: 0; }
     }
+
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
   `;
   if (!document.head.querySelector('[data-welcome-styles]')) {
-    styleSheet.setAttribute("data-welcome-styles", "true");
+    styleSheet.setAttribute('data-welcome-styles', 'true');
     document.head.appendChild(styleSheet);
   }
 }
