@@ -56,18 +56,29 @@ Hazırsan, oyun başlasın. 🧠💥`;
           setIsTyping(false);
           clearInterval(interval);
           
+          // Ses dosyasını temizle
+          if (keySoundRef.current) {
+            keySoundRef.current.pause();
+            keySoundRef.current = null;
+          }
+          
           // Yazı bittikten sonra butonu göster
           setTimeout(() => {
             setShowButton(true);
           }, 500);
         }
-      }, 50); // 50ms - normal klavye yazma hızı
+      }, 500); // 500ms - çok yavaş ve sakin tempo
 
       return () => clearInterval(interval);
     }, 1200); // Başlık animasyonu için 1.2 saniye bekle
 
     return () => {
       clearTimeout(startTimeout);
+      // Component unmount olduğunda ses dosyasını temizle
+      if (keySoundRef.current) {
+        keySoundRef.current.pause();
+        keySoundRef.current = null;
+      }
     };
   }, []);
 
