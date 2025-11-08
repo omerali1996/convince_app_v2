@@ -7,6 +7,7 @@ export default function WelcomeScreen() {
   const [showButton, setShowButton] = useState(false);
 
   const keySoundRef = useRef(null);
+  const soundIntervalRef = useRef(null);
 
   const fullText = `Hoş geldin.
 Hayat, her gün sayısız küçük müzakerenin içinde geçiyor.
@@ -18,13 +19,6 @@ Her senaryo, iletişim tarzını güçlendirmen için bir meydan okuma.
 Burada amaç sadece kendini tanımak değil — daha stratejik, daha etkili, daha güçlü bir müzakereci olmak.
 Hazırsan, oyun başlasın. 🧠💥`;
 
-  const playKeySound = () => {
-    if (keySoundRef.current) {
-      keySoundRef.current.currentTime = 0;
-      keySoundRef.current.play().catch(err => console.log("Ses çalınamadı:", err));
-    }
-  };
-
   useEffect(() => {
     keySoundRef.current = new Audio("/sounds/mechanical-key.mp3");
     keySoundRef.current.preload = "auto";
@@ -33,31 +27,49 @@ Hazırsan, oyun başlasın. 🧠💥`;
     setIsTyping(true);
     let index = 0;
 
-    const interval = setInterval(() => {
+    // Hızlı yazı akışı
+    const typingInterval = setInterval(() => {
       if (index < fullText.length) {
         setDisplayedText(fullText.slice(0, index + 1));
-        const currentChar = fullText[index];
-
-        if (currentChar.trim() !== "" && currentChar !== "\n") {
-          playKeySound();
-        }
-
         index++;
       } else {
-        clearInterval(interval);
+        clearInterval(typingInterval);
         setIsTyping(false);
         setShowButton(true);
 
-        // Yazı bittiğinde sesi durdur
+        // Ses intervalini durdur
+        if (soundIntervalRef.current) {
+          clearInterval(soundIntervalRef.current);
+          soundIntervalRef.current = null;
+        }
+
+        // Ses varsa durdur
         if (keySoundRef.current) {
           keySoundRef.current.pause();
           keySoundRef.current.currentTime = 0;
         }
       }
-    }, 500); // 500ms → 10 kat yavaş
+    }, 50); // 50ms → hızlı yazı
+
+    // Sabit ve yavaş ses akışı: 50 karakterde 1 ses
+    let soundIndex = 0;
+    soundIntervalRef.current = setInterval(() => {
+      if (soundIndex < fullText.length) {
+        // Her 50 karakterde bir ses çal
+        if (soundIndex % 50 === 0 && fullText[soundIndex].trim() !== "") {
+          keySoundRef.current.currentTime = 0;
+          keySoundRef.current.play().catch(err => console.log("Ses çalınamadı:", err));
+        }
+        soundIndex++;
+      } else {
+        clearInterval(soundIntervalRef.current);
+        soundIntervalRef.current = null;
+      }
+    }, 500); // 500ms → ses yavaş
 
     return () => {
-      clearInterval(interval);
+      clearInterval(typingInterval);
+      if (soundIntervalRef.current) clearInterval(soundIntervalRef.current);
       if (keySoundRef.current) {
         keySoundRef.current.pause();
         keySoundRef.current = null;
