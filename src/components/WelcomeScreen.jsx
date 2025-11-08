@@ -7,7 +7,6 @@ export default function WelcomeScreen() {
   const [showButton, setShowButton] = useState(false);
 
   const keySoundRef = useRef(null);
-  const soundIntervalRef = useRef(null);
 
   const fullText = `Hoş geldin.
 Hayat, her gün sayısız küçük müzakerenin içinde geçiyor.
@@ -27,49 +26,35 @@ Hazırsan, oyun başlasın. 🧠💥`;
     setIsTyping(true);
     let index = 0;
 
-    // Hızlı yazı akışı
     const typingInterval = setInterval(() => {
       if (index < fullText.length) {
         setDisplayedText(fullText.slice(0, index + 1));
+
+        // Her karakterde ses çal (boşluk ve satır sonları hariç)
+        const currentChar = fullText[index];
+        if (currentChar.trim() !== "" && currentChar !== "\n") {
+          if (keySoundRef.current) {
+            keySoundRef.current.currentTime = 0;
+            keySoundRef.current.play().catch(err => console.log("Ses çalınamadı:", err));
+          }
+        }
+
         index++;
       } else {
         clearInterval(typingInterval);
         setIsTyping(false);
         setShowButton(true);
 
-        // Ses intervalini durdur
-        if (soundIntervalRef.current) {
-          clearInterval(soundIntervalRef.current);
-          soundIntervalRef.current = null;
-        }
-
-        // Ses varsa durdur
+        // Yazı bittiğinde sesi durdur
         if (keySoundRef.current) {
           keySoundRef.current.pause();
           keySoundRef.current.currentTime = 0;
         }
       }
-    }, 50); // 50ms → hızlı yazı
-
-    // Sabit ve yavaş ses akışı: 50 karakterde 1 ses
-    let soundIndex = 0;
-    soundIntervalRef.current = setInterval(() => {
-      if (soundIndex < fullText.length) {
-        // Her 50 karakterde bir ses çal
-        if (soundIndex % 50 === 0 && fullText[soundIndex].trim() !== "") {
-          keySoundRef.current.currentTime = 0;
-          keySoundRef.current.play().catch(err => console.log("Ses çalınamadı:", err));
-        }
-        soundIndex++;
-      } else {
-        clearInterval(soundIntervalRef.current);
-        soundIntervalRef.current = null;
-      }
-    }, 500); // 500ms → ses yavaş
+    }, 50); // Hızlı yazı akışı
 
     return () => {
       clearInterval(typingInterval);
-      if (soundIntervalRef.current) clearInterval(soundIntervalRef.current);
       if (keySoundRef.current) {
         keySoundRef.current.pause();
         keySoundRef.current = null;
