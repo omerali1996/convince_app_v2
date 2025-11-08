@@ -44,9 +44,9 @@ Hazırsan, oyun başlasın. 🧠💥`;
         if (index < fullText.length) {
           setDisplayedText(fullText.slice(0, index + 1));
 
-          // Boşluk, satır sonu veya emoji değilse ve her 3 karakterde bir ses çal
+          // Boşluk, satır sonu veya emoji değilse ve her 30 karakterde bir ses çal (10 kat daha az)
           const currentChar = fullText[index];
-          if (currentChar !== " " && currentChar !== "\n" && currentChar.trim() !== "" && index % 3 === 0) {
+          if (currentChar !== " " && currentChar !== "\n" && currentChar.trim() !== "" && index % 30 === 0) {
             playKeySound();
           }
 
@@ -67,7 +67,7 @@ Hazırsan, oyun başlasın. 🧠💥`;
             setShowButton(true);
           }, 500);
         }
-      }, 500); // 500ms - çok yavaş ve sakin tempo
+      }, 50); // 50ms - normal klavye yazma hızı
 
       return () => clearInterval(interval);
     }, 1200); // Başlık animasyonu için 1.2 saniye bekle
