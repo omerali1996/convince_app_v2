@@ -6,7 +6,9 @@ export default function WelcomeScreen() {
   const { startGame } = useGame();
   const [displayedText, setDisplayedText] = useState("");
   const [isComplete, setIsComplete] = useState(false);
-  const audioContextRef = useRef(null);
+
+  // Gerçek mekanik klavye sesi dosyası
+  const keySoundRef = useRef(null);
 
   const fullText = `Hoş geldin.
 Hayat, her gün sayısız küçük müzakerenin içinde geçiyor.
@@ -18,113 +20,37 @@ Her senaryo, iletişim tarzını güçlendirmen için bir meydan okuma.
 Burada amaç sadece kendini tanımak değil — daha stratejik, daha etkili, daha güçlü bir müzakereci olmak.
 Hazırsan, oyun başlasın. 🧠💥`;
 
-  // Mekanik klavye tuş sesi
   const playKeySound = () => {
-    if (!audioContextRef.current) {
-      audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
+    if (keySoundRef.current) {
+      keySoundRef.current.currentTime = 0;
+      keySoundRef.current.volume = 0.25 + Math.random() * 0.1; // doğal varyasyon
+      keySoundRef.current.play();
     }
-    
-    const audioContext = audioContextRef.current;
-    const now = audioContext.currentTime;
-    
-    // Tuş basma sesi (downstroke)
-    const osc1 = audioContext.createOscillator();
-    const gain1 = audioContext.createGain();
-    const filter1 = audioContext.createBiquadFilter();
-    
-    osc1.connect(filter1);
-    filter1.connect(gain1);
-    gain1.connect(audioContext.destination);
-    
-    osc1.type = 'square';
-    osc1.frequency.value = 150 + Math.random() * 50;
-    
-    filter1.type = 'bandpass';
-    filter1.frequency.value = 2000;
-    filter1.Q.value = 1;
-    
-    gain1.gain.setValueAtTime(0.03, now);
-    gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
-    
-    osc1.start(now);
-    osc1.stop(now + 0.03);
-    
-    // Tuş bırakma sesi (upstroke) - hafif plastik tık
-    const osc2 = audioContext.createOscillator();
-    const gain2 = audioContext.createGain();
-    const filter2 = audioContext.createBiquadFilter();
-    
-    osc2.connect(filter2);
-    filter2.connect(gain2);
-    gain2.connect(audioContext.destination);
-    
-    osc2.type = 'square';
-    osc2.frequency.value = 200 + Math.random() * 100;
-    
-    filter2.type = 'highpass';
-    filter2.frequency.value = 1500;
-    
-    gain2.gain.setValueAtTime(0.02, now + 0.04);
-    gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
-    
-    osc2.start(now + 0.04);
-    osc2.stop(now + 0.06);
-    
-    // Hafif beyaz gürültü (plastik dokuma)
-    const bufferSize = 4096;
-    const noiseBuffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
-    const output = noiseBuffer.getChannelData(0);
-    
-    for (let i = 0; i < bufferSize; i++) {
-      output[i] = Math.random() * 2 - 1;
-    }
-    
-    const noise = audioContext.createBufferSource();
-    const noiseGain = audioContext.createGain();
-    const noiseFilter = audioContext.createBiquadFilter();
-    
-    noise.buffer = noiseBuffer;
-    noise.connect(noiseFilter);
-    noiseFilter.connect(noiseGain);
-    noiseGain.connect(audioContext.destination);
-    
-    noiseFilter.type = 'bandpass';
-    noiseFilter.frequency.value = 3000;
-    noiseFilter.Q.value = 0.5;
-    
-    noiseGain.gain.setValueAtTime(0.008, now);
-    noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.02);
-    
-    noise.start(now);
-    noise.stop(now + 0.02);
   };
 
   useEffect(() => {
+    keySoundRef.current = new Audio("/sounds/mechanical-key.mp3"); // 👈 Ses dosyan
+    keySoundRef.current.preload = "auto";
+
     let index = 0;
     const interval = setInterval(() => {
       if (index < fullText.length) {
         setDisplayedText(fullText.slice(0, index + 1));
-        
-        // Boşluk ve satır başı dışındaki karakterlerde ses çal
+
+        // Boşluk veya satır sonu değilse ses çal
         const currentChar = fullText[index];
-        if (currentChar !== ' ' && currentChar !== '\n') {
+        if (currentChar !== " " && currentChar !== "\n") {
           playKeySound();
         }
-        
+
         index++;
       } else {
         setIsComplete(true);
         clearInterval(interval);
       }
-    }, 60); // 60ms'de bir karakter (doğal klavye hızı)
+    }, 60);
 
-    return () => {
-      clearInterval(interval);
-      // AudioContext'i temizle
-      if (audioContextRef.current) {
-        audioContextRef.current.close();
-      }
-    };
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -143,10 +69,12 @@ Hazırsan, oyun başlasın. 🧠💥`;
         >
           🕊️ İkna Oyunu
         </motion.h1>
+
         <div style={subtitle}>
           {displayedText}
           {!isComplete && <span style={cursor}>|</span>}
         </div>
+
         {isComplete && (
           <motion.button
             initial={{ y: 50, opacity: 0 }}
@@ -223,7 +151,7 @@ const buttonStyle = {
   transition: "transform 0.2s ease",
 };
 
-// CSS animasyonu için stil ekleme
+// CSS animasyonu
 const styleSheet = document.createElement("style");
 styleSheet.textContent = `
   @keyframes blink {
