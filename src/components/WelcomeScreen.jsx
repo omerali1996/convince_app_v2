@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useGame } from "../context/GameContext";
 import { motion } from "framer-motion";
 
 export default function WelcomeScreen() {
-  const { startGame } = useGame();
   const [displayedText, setDisplayedText] = useState("");
   const [isComplete, setIsComplete] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+  const [showButton, setShowButton] = useState(false);
 
-  // Gerçek mekanik klavye sesi dosyası
-  const keySoundRef = useRef(null);
+  // Klavye sesleri için referanslar
+  const audioContextRef = useRef(null);
+  const keySoundsRef = useRef([]);
 
   const fullText = `Hoş geldin.
 Hayat, her gün sayısız küçük müzakerenin içinde geçiyor.
@@ -21,22 +21,41 @@ Her senaryo, iletişim tarzını güçlendirmen için bir meydan okuma.
 Burada amaç sadece kendini tanımak değil — daha stratejik, daha etkili, daha güçlü bir müzakereci olmak.
 Hazırsan, oyun başlasın. 🧠💥`;
 
+  // Basit klavye sesi oluştur
+  const createKeySound = () => {
+    if (!audioContextRef.current) {
+      audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    
+    const ctx = audioContextRef.current;
+    const oscillator = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(ctx.destination);
+    
+    // Mekanik klavye benzeri ses (kısa, keskin)
+    oscillator.type = 'square';
+    oscillator.frequency.setValueAtTime(800 + Math.random() * 200, ctx.currentTime);
+    
+    gainNode.gain.setValueAtTime(0.03, ctx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+    
+    oscillator.start(ctx.currentTime);
+    oscillator.stop(ctx.currentTime + 0.05);
+  };
+
   const playKeySound = () => {
-    if (keySoundRef.current) {
-      // Ses dosyasını her seferinde baştan başlat
-      const sound = keySoundRef.current.cloneNode();
-      sound.volume = 0.2 + Math.random() * 0.15; // 0.2-0.35 arası doğal varyasyon
-      sound.play().catch(err => console.log("Ses çalınamadı:", err));
+    try {
+      createKeySound();
+    } catch (err) {
+      console.log("Ses çalınamadı:", err);
     }
   };
 
   useEffect(() => {
-    // Ses dosyasını yükle
-    keySoundRef.current = new Audio("/sounds/mechanical-key.mp3");
-    keySoundRef.current.preload = "auto";
-
-    // Animasyon başlamadan önce kısa bir gecikme (başlık animasyonunun bitmesi için)
-    setTimeout(() => {
+    // Animasyon başlamadan önce kısa bir gecikme
+    const startTimeout = setTimeout(() => {
       setIsTyping(true);
       let index = 0;
       
@@ -46,7 +65,7 @@ Hazırsan, oyun başlasın. 🧠💥`;
 
           // Boşluk veya satır sonu değilse ses çal
           const currentChar = fullText[index];
-          if (currentChar !== " " && currentChar !== "\n") {
+          if (currentChar !== " " && currentChar !== "\n" && currentChar.trim() !== "") {
             playKeySound();
           }
 
@@ -55,13 +74,31 @@ Hazırsan, oyun başlasın. 🧠💥`;
           setIsComplete(true);
           setIsTyping(false);
           clearInterval(interval);
+          
+          // Yazı bittikten sonra butonu göster
+          setTimeout(() => {
+            setShowButton(true);
+          }, 300);
         }
-      }, 60); // 60ms'de bir karakter
+      }, 80); // 80ms'de bir karakter (yavaş ve okumaya uygun)
 
       return () => clearInterval(interval);
-    }, 1200); // Başlık animasyonu için 1.2 saniye bekle
+    }, 1200);
 
+    return () => {
+      clearTimeout(startTimeout);
+      // Audio context temizliği
+      if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
+        audioContextRef.current.close();
+      }
+    };
   }, []);
+
+  const handleStart = () => {
+    console.log("Oyun başladı!");
+    // Burada oyunu başlatma fonksiyonunu çağırabilirsiniz
+    // startGame();
+  };
 
   return (
     <div style={wrap}>
@@ -80,20 +117,21 @@ Hazırsan, oyun başlasın. 🧠💥`;
           🕊️ İkna Oyunu
         </motion.h1>
 
-        <div style={subtitle}>
-          {displayedText}
-          {isTyping && <span style={cursor}>|</span>}
+        <div style={textContainer}>
+          <div style={subtitle}>
+            {displayedText}
+            {isTyping && <span style={cursor}>|</span>}
+          </div>
         </div>
 
-        {isComplete && (
+        {showButton && (
           <motion.button
-            initial={{ y: 50, opacity: 0 }}
+            initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="btn btn-primary"
-            onClick={startGame}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            onClick={handleStart}
             style={buttonStyle}
-            whileHover={{ scale: 1.05 }}
+            whileHover={{ scale: 1.05, boxShadow: "0 6px 16px rgba(255, 190, 92, 0.3)" }}
             whileTap={{ scale: 0.95 }}
           >
             Başla
@@ -109,64 +147,83 @@ const wrap = {
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  height: "100vh",
+  minHeight: "100vh",
   background: "radial-gradient(circle at center, #0f162f, #0a0f1f)",
+  padding: "20px",
 };
 
 const card = {
   textAlign: "center",
-  padding: 32,
+  padding: "40px 32px",
   background: "rgba(15, 22, 47, 0.95)",
   borderRadius: 20,
   border: "1px solid rgba(255,255,255,.06)",
   boxShadow: "0 8px 24px rgba(0,0,0,.4)",
-  maxWidth: 500,
+  maxWidth: 600,
   width: "90%",
+  backdropFilter: "blur(10px)",
 };
 
 const title = {
-  fontSize: 28,
-  marginBottom: 10,
+  fontSize: 32,
+  marginBottom: 24,
   color: "#fff",
   fontWeight: 600,
+  letterSpacing: "0.5px",
+};
+
+const textContainer = {
+  marginBottom: 32,
 };
 
 const subtitle = {
   fontSize: 16,
-  color: "rgba(255,255,255,0.75)",
-  marginBottom: 24,
-  lineHeight: 1.6,
-  minHeight: 320,
+  color: "rgba(255,255,255,0.85)",
+  lineHeight: 1.8,
+  minHeight: 360,
   textAlign: "left",
   whiteSpace: "pre-wrap",
+  fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
 };
 
 const cursor = {
+  display: "inline-block",
+  width: "2px",
+  height: "1.2em",
+  backgroundColor: "#ffbe5c",
+  marginLeft: "2px",
   animation: "blink 1s infinite",
-  marginLeft: 2,
-  color: "#ffbe5c",
+  verticalAlign: "middle",
 };
 
 const buttonStyle = {
-  marginTop: 10,
-  background: "linear-gradient(180deg, #ffbe5c, #ffb84c)",
+  background: "linear-gradient(135deg, #ffbe5c, #ff9d4c)",
   border: "none",
-  color: "#101010",
-  fontWeight: 600,
-  padding: "12px 28px",
+  color: "#1a1a1a",
+  fontWeight: 700,
+  padding: "14px 36px",
   borderRadius: 12,
   cursor: "pointer",
-  fontSize: 16,
-  boxShadow: "0 4px 10px rgba(0,0,0,.2)",
-  transition: "transform 0.2s ease",
+  fontSize: 17,
+  boxShadow: "0 4px 12px rgba(255, 190, 92, 0.2)",
+  transition: "all 0.2s ease",
+  letterSpacing: "0.5px",
+  textTransform: "uppercase",
 };
 
-// CSS animasyonu
-const styleSheet = document.createElement("style");
-styleSheet.textContent = `
-  @keyframes blink {
-    0%, 50% { opacity: 1; }
-    51%, 100% { opacity: 0; }
+// CSS animasyonu için stil ekleme
+if (typeof document !== 'undefined') {
+  const styleSheet = document.createElement("style");
+  styleSheet.textContent = `
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+    
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+  `;
+  if (!document.head.querySelector('[data-welcome-styles]')) {
+    styleSheet.setAttribute('data-welcome-styles', 'true');
+    document.head.appendChild(styleSheet);
   }
-`;
-document.head.appendChild(styleSheet);
+}
