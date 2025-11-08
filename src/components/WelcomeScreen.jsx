@@ -18,28 +18,46 @@ Her senaryo, iletişim tarzını güçlendirmen için bir meydan okuma.
 Burada amaç sadece kendini tanımak değil — daha stratejik, daha etkili, daha güçlü bir müzakereci olmak.
 Hazırsan, oyun başlasın. 🧠💥`;
 
-  // Daktilo sesi oluşturma fonksiyonu
+  // Gerçekçi "click-click" daktilo sesi
   const playTypeSound = () => {
     if (!audioContextRef.current) {
       audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
     }
     
     const audioContext = audioContextRef.current;
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
+    const now = audioContext.currentTime;
     
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
+    // İlk "click" sesi
+    const osc1 = audioContext.createOscillator();
+    const gain1 = audioContext.createGain();
     
-    // Daktilo sesi için parametreler
-    oscillator.frequency.value = Math.random() * 100 + 400; // 400-500 Hz arası rastgele
-    oscillator.type = 'square';
+    osc1.connect(gain1);
+    gain1.connect(audioContext.destination);
     
-    gainNode.gain.setValueAtTime(0.05, audioContext.currentTime); // Düşük ses seviyesi
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.05);
+    osc1.frequency.value = 1200 + Math.random() * 200; // Yüksek frekanslı click
+    osc1.type = 'square';
     
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + 0.05);
+    gain1.gain.setValueAtTime(0.02, now);
+    gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.02);
+    
+    osc1.start(now);
+    osc1.stop(now + 0.02);
+    
+    // İkinci "clack" sesi (biraz sonra ve daha yumuşak)
+    const osc2 = audioContext.createOscillator();
+    const gain2 = audioContext.createGain();
+    
+    osc2.connect(gain2);
+    gain2.connect(audioContext.destination);
+    
+    osc2.frequency.value = 800 + Math.random() * 150; // Daha alçak frekanslı clack
+    osc2.type = 'square';
+    
+    gain2.gain.setValueAtTime(0.015, now + 0.015);
+    gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
+    
+    osc2.start(now + 0.015);
+    osc2.stop(now + 0.035);
   };
 
   useEffect(() => {
@@ -59,7 +77,7 @@ Hazırsan, oyun başlasın. 🧠💥`;
         setIsComplete(true);
         clearInterval(interval);
       }
-    }, 30); // Her 30ms'de bir karakter ekle
+    }, 50); // Daha yavaş: 50ms'de bir karakter
 
     return () => {
       clearInterval(interval);
