@@ -114,15 +114,20 @@ export default function GameScreen() {
     else startListening();
   };
 
-  // --- Mesaj gönder ---
-  const sendMessage = async () => {
+  // --- Mesaj gönder (retry mekanizması ile) ---
+  const sendMessage = async (retryCount = 0) => {
     const userMessage = input.trim();
     if (!userMessage || loading) return;
 
     stopListening(); // gönderirken mikrofonu durdur
-    setMessages((prev) => [...prev, { sender: "user", text: userMessage }]);
-    setInput("");
-    setInterimText("");
+    
+    // İlk denemede kullanıcı mesajını ekle
+    if (retryCount === 0) {
+      setMessages((prev) => [...prev, { sender: "user", text: userMessage }]);
+      setInput("");
+      setInterimText("");
+    }
+    
     setLoading(true);
 
     try {
@@ -134,14 +139,24 @@ export default function GameScreen() {
 
       const aiText = (res.data?.answer || "").trim();
       setMessages((prev) => [...prev, { sender: "ai", text: aiText }]);
-    } catch (err) {
-      console.error(err);
-      setMessages((prev) => [
-        ...prev,
-        { sender: "ai", text: "Cevap alınamadı." },
-      ]);
-    } finally {
       setLoading(false);
+    } catch (err) {
+      console.error("API hatası:", err);
+      
+      // İlk denemede hata alındıysa, bir kez daha dene
+      if (retryCount === 0) {
+        console.log("🔄 Tekrar deneniyor...");
+        setTimeout(() => {
+          sendMessage(1); // Retry ile tekrar çağır
+        }, 1000); // 1 saniye bekle
+      } else {
+        // İkinci denemede de hata alındıysa, kullanıcıya bildir
+        setMessages((prev) => [
+          ...prev,
+          { sender: "ai", text: "Cevap alınamadı. Lütfen tekrar deneyin." },
+        ]);
+        setLoading(false);
+      }
     }
   };
 
@@ -225,7 +240,7 @@ export default function GameScreen() {
           </div>
 
           <div style={buttonGroup}>
-            <button onClick={sendMessage} disabled={loading} style={buttonPrimary}>
+            <button onClick={() => sendMessage(0)} disabled={loading} style={buttonPrimary}>
               {loading ? "Gönderiliyor..." : "Gönder"}
             </button>
             <button onClick={resetChat} style={buttonSecondary}>
