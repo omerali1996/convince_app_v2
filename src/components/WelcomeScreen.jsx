@@ -21,10 +21,10 @@ Burada amaç sadece kendini tanımak değil — daha stratejik, daha etkili, dah
 Hazırsan, oyun başlasın. 🧠💥`;
 
   const playKeySound = () => {
-    if (keySoundRef.current) {
+    if (keySoundRef.current && isTyping) {
       // Ses dosyasını her seferinde yeni bir instance ile çal
       const sound = keySoundRef.current.cloneNode();
-      sound.volume = 0.08; // Çok daha düşük ses
+      sound.volume = 0.06; // Çok daha düşük ses
       sound.playbackRate = 0.9; // Biraz daha yavaş
       sound.play().catch(err => console.log("Ses çalınamadı:", err));
     }
@@ -46,7 +46,7 @@ Hazırsan, oyun başlasın. 🧠💥`;
 
           // Boşluk, satır sonu veya emoji değilse ve her 30 karakterde bir ses çal (10 kat daha az)
           const currentChar = fullText[index];
-          if (currentChar !== " " && currentChar !== "\n" && currentChar.trim() !== "" && index % 40 === 0) {
+          if (currentChar !== " " && currentChar !== "\n" && currentChar.trim() !== "" && index % 50 === 0) {
             playKeySound();
           }
 
@@ -215,4 +215,3 @@ if (typeof document !== 'undefined') {
     document.head.appendChild(styleSheet);
   }
 }
-
