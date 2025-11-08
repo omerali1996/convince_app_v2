@@ -6,6 +6,7 @@ export default function WelcomeScreen() {
   const { startGame } = useGame();
   const [displayedText, setDisplayedText] = useState("");
   const [isComplete, setIsComplete] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
 
   // Gerçek mekanik klavye sesi dosyası
   const keySoundRef = useRef(null);
@@ -22,35 +23,44 @@ Hazırsan, oyun başlasın. 🧠💥`;
 
   const playKeySound = () => {
     if (keySoundRef.current) {
-      keySoundRef.current.currentTime = 0;
-      keySoundRef.current.volume = 0.25 + Math.random() * 0.1; // doğal varyasyon
-      keySoundRef.current.play();
+      // Ses dosyasını her seferinde baştan başlat
+      const sound = keySoundRef.current.cloneNode();
+      sound.volume = 0.2 + Math.random() * 0.15; // 0.2-0.35 arası doğal varyasyon
+      sound.play().catch(err => console.log("Ses çalınamadı:", err));
     }
   };
 
   useEffect(() => {
-    keySoundRef.current = new Audio("/sounds/mechanical-key.mp3"); // 👈 Ses dosyan
+    // Ses dosyasını yükle
+    keySoundRef.current = new Audio("/sounds/mechanical-key.mp3");
     keySoundRef.current.preload = "auto";
 
-    let index = 0;
-    const interval = setInterval(() => {
-      if (index < fullText.length) {
-        setDisplayedText(fullText.slice(0, index + 1));
+    // Animasyon başlamadan önce kısa bir gecikme (başlık animasyonunun bitmesi için)
+    setTimeout(() => {
+      setIsTyping(true);
+      let index = 0;
+      
+      const interval = setInterval(() => {
+        if (index < fullText.length) {
+          setDisplayedText(fullText.slice(0, index + 1));
 
-        // Boşluk veya satır sonu değilse ses çal
-        const currentChar = fullText[index];
-        if (currentChar !== " " && currentChar !== "\n") {
-          playKeySound();
+          // Boşluk veya satır sonu değilse ses çal
+          const currentChar = fullText[index];
+          if (currentChar !== " " && currentChar !== "\n") {
+            playKeySound();
+          }
+
+          index++;
+        } else {
+          setIsComplete(true);
+          setIsTyping(false);
+          clearInterval(interval);
         }
+      }, 60); // 60ms'de bir karakter
 
-        index++;
-      } else {
-        setIsComplete(true);
-        clearInterval(interval);
-      }
-    }, 60);
+      return () => clearInterval(interval);
+    }, 1200); // Başlık animasyonu için 1.2 saniye bekle
 
-    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -72,7 +82,7 @@ Hazırsan, oyun başlasın. 🧠💥`;
 
         <div style={subtitle}>
           {displayedText}
-          {!isComplete && <span style={cursor}>|</span>}
+          {isTyping && <span style={cursor}>|</span>}
         </div>
 
         {isComplete && (
