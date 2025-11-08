@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 
 export default function WelcomeScreen() {
   const [displayedText, setDisplayedText] = useState("");
-  const [isComplete, setIsComplete] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [showButton, setShowButton] = useState(false);
 
@@ -21,51 +20,44 @@ Hazırsan, oyun başlasın. 🧠💥`;
 
   const playKeySound = () => {
     if (keySoundRef.current) {
-      const sound = keySoundRef.current.cloneNode();
-      sound.volume = 0.06;
-      sound.playbackRate = 0.9;
-      sound.play().catch(err => console.log("Ses çalınamadı:", err));
+      keySoundRef.current.currentTime = 0;
+      keySoundRef.current.play().catch(err => console.log("Ses çalınamadı:", err));
     }
   };
 
   useEffect(() => {
     keySoundRef.current = new Audio("/sounds/mechanical-key.mp3");
     keySoundRef.current.preload = "auto";
+    keySoundRef.current.volume = 0.06;
 
-    const startTimeout = setTimeout(() => {
-      setIsTyping(true);
-      let index = 0;
+    setIsTyping(true);
+    let index = 0;
 
-      const interval = setInterval(() => {
-        if (index < fullText.length) {
-          setDisplayedText(fullText.slice(0, index + 1));
+    const interval = setInterval(() => {
+      if (index < fullText.length) {
+        setDisplayedText(fullText.slice(0, index + 1));
+        const currentChar = fullText[index];
 
-          const currentChar = fullText[index];
-          // Boşluk, satır sonu veya emoji değilse ve her 10 karakterde bir ses çal
-          if (currentChar.trim() !== "" && currentChar !== "\n" && index % 10 === 0) {
-            playKeySound();
-          }
-
-          index++;
-        } else {
-          setIsComplete(true);
-          setIsTyping(false);
-          clearInterval(interval);
-
-          if (keySoundRef.current) {
-            keySoundRef.current.pause();
-            keySoundRef.current = null;
-          }
-
-          setTimeout(() => setShowButton(true), 500);
+        if (currentChar.trim() !== "" && currentChar !== "\n") {
+          playKeySound();
         }
-      }, 50); // 50ms → hızlı akış
 
-      return () => clearInterval(interval);
-    }, 1200);
+        index++;
+      } else {
+        clearInterval(interval);
+        setIsTyping(false);
+        setShowButton(true);
+
+        // Yazı bittiğinde sesi durdur
+        if (keySoundRef.current) {
+          keySoundRef.current.pause();
+          keySoundRef.current.currentTime = 0;
+        }
+      }
+    }, 500); // 500ms → 10 kat yavaş
 
     return () => {
-      clearTimeout(startTimeout);
+      clearInterval(interval);
       if (keySoundRef.current) {
         keySoundRef.current.pause();
         keySoundRef.current = null;
