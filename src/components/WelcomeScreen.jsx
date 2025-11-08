@@ -13,7 +13,7 @@ export default function WelcomeScreen() {
   // 🔊 Tek Audio + sabit aralıklı tetikleme
   const keyAudioRef = useRef(null);
   const nextTickRef = useRef(0);
-  const CLICK_INTERVAL = 120; // ms
+  const CLICK_INTERVAL = 180; // ms
 
   const fullText = `Hoş geldin.
 Hayat, her gün sayısız küçük müzakerenin içinde geçiyor.
@@ -211,4 +211,5 @@ if (typeof document !== "undefined") {
     document.head.appendChild(styleSheet);
   }
 }
+
 
