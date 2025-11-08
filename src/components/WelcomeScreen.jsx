@@ -1,3 +1,5 @@
+// "use client"; // Next.js kullanıyorsan aç
+
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 
@@ -7,7 +9,10 @@ export default function WelcomeScreen() {
   const [isTyping, setIsTyping] = useState(false);
   const [showButton, setShowButton] = useState(false);
 
-  const keySoundRef = useRef(null);
+  // 🔊 Tek bir Audio nesnesi + sabit aralıklı (metronom) tetikleme
+  const keyAudioRef = useRef(null);
+  const nextTickRef = useRef(0);          // bir sonraki çalınabilecek zaman damgası (ms)
+  const CLICK_INTERVAL = 180;             // ms — sabit aralık (hızlanma hissini engeller)
 
   const fullText = `Hoş geldin.
 Hayat, her gün sayısız küçük müzakerenin içinde geçiyor.
@@ -20,17 +25,36 @@ Burada amaç sadece kendini tanımak değil — daha stratejik, daha etkili, dah
 Hazırsan, oyun başlasın. 🧠💥`;
 
   const playKeySound = () => {
-    if (keySoundRef.current) {
-      const sound = keySoundRef.current.cloneNode();
-      sound.volume = 0.06;
-      sound.playbackRate = 0.9;
-      sound.play().catch(err => console.log("Ses çalınamadı:", err));
-    }
+    const a = keyAudioRef.current;
+    if (!a) return;
+
+    const now = performance.now();
+    if (now < nextTickRef.current) return; // metronom: henüz zamanı değil
+    if (!a.paused) return;                 // zaten çalıyorsa üstüne binme
+
+    try {
+      a.volume = 0.06;
+      a.playbackRate = 1.0;               // sabit hız — hızlanma hissini engelle
+      a.currentTime = 0;                  // sadece PAUSED iken başa sar
+      a.play().catch(() => {});
+      nextTickRef.current = now + CLICK_INTERVAL;
+    } catch {}
+  };
+
+  const stopKeySound = () => {
+    const a = keyAudioRef.current;
+    if (!a) return;
+    try {
+      a.pause();
+      a.currentTime = 0;
+    } catch {}
   };
 
   useEffect(() => {
-    keySoundRef.current = new Audio("/sounds/mechanical-key.mp3");
-    keySoundRef.current.preload = "auto";
+    // Tek ses kaynağı
+    keyAudioRef.current = new Audio("/sounds/mechanical-key.mp3");
+    keyAudioRef.current.preload = "auto";
+    keyAudioRef.current.loop = false;
 
     const startTimeout = setTimeout(() => {
       setIsTyping(true);
@@ -39,42 +63,35 @@ Hazırsan, oyun başlasın. 🧠💥`;
       const interval = setInterval(() => {
         if (index < fullText.length) {
           setDisplayedText(fullText.slice(0, index + 1));
+          const ch = fullText[index];
 
-          const currentChar = fullText[index];
-          // Boşluk, satır sonu veya emoji değilse ve her 10 karakterde bir ses çal
-          if (currentChar.trim() !== "" && currentChar !== "\n" && index % 10 === 0) {
-            playKeySound();
-          }
+          // Yazı hızı 50ms — klik sadece harf/işaretlerde, metronom uygunsa
+          if (ch.trim() !== "" && ch !== "\n") playKeySound();
 
           index++;
         } else {
           setIsComplete(true);
           setIsTyping(false);
           clearInterval(interval);
-
-          if (keySoundRef.current) {
-            keySoundRef.current.pause();
-            keySoundRef.current = null;
-          }
-
+          stopKeySound();                      // yazı bitince kesin durdur
           setTimeout(() => setShowButton(true), 500);
         }
-      }, 50); // 50ms → hızlı akış
+      }, 50); // yazı akış hızı aynı
 
+      // cleanup interval
       return () => clearInterval(interval);
     }, 1200);
 
     return () => {
       clearTimeout(startTimeout);
-      if (keySoundRef.current) {
-        keySoundRef.current.pause();
-        keySoundRef.current = null;
-      }
+      stopKeySound();          // unmount temizliği
+      keyAudioRef.current = null;
     };
   }, []);
 
   const handleStart = () => {
     console.log("Oyun başladı!");
+    // burada route değişimi / state geçişi vb. ekleyebilirsin
   };
 
   return (
@@ -149,9 +166,7 @@ const title = {
   letterSpacing: "0.5px",
 };
 
-const textContainer = {
-  marginBottom: 32,
-};
+const textContainer = { marginBottom: 32 };
 
 const subtitle = {
   fontSize: 16,
@@ -188,7 +203,7 @@ const buttonStyle = {
   textTransform: "uppercase",
 };
 
-if (typeof document !== 'undefined') {
+if (typeof document !== "undefined") {
   const styleSheet = document.createElement("style");
   styleSheet.textContent = `
     @keyframes blink {
@@ -199,7 +214,7 @@ if (typeof document !== 'undefined') {
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
   `;
   if (!document.head.querySelector('[data-welcome-styles]')) {
-    styleSheet.setAttribute('data-welcome-styles', 'true');
+    styleSheet.setAttribute("data-welcome-styles", "true");
     document.head.appendChild(styleSheet);
   }
 }
