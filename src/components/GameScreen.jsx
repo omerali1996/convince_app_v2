@@ -53,14 +53,9 @@ export default function GameScreen() {
 
     recognition.onend = () => {
       console.log("Ses tanıma durdu");
-      // Eğer kullanıcı durdurmadıysa, otomatik yeniden başlat
-      if (recognitionRef.current && listening) {
-        try {
-          recognition.start();
-        } catch (error) {
-          console.log("Yeniden başlatma hatası:", error);
-        }
-      }
+      // Eğer kullanıcı durdurmadıysa otomatik başlatma kaldırıldı
+      setListening(false);
+      setInterimText("");
     };
 
     recognitionRef.current = recognition;
@@ -68,7 +63,7 @@ export default function GameScreen() {
     return () => {
       if (recognitionRef.current) recognitionRef.current.stop();
     };
-  }, [listening]);
+  }, []);
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
