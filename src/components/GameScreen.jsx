@@ -13,6 +13,7 @@ export default function GameScreen() {
   const [interimText, setInterimText] = useState("");
   const scrollRef = useRef();
   const recognitionRef = useRef(null);
+  const textareaRef = useRef(null);
 
   // --- Speech Recognition Setup ---
   useEffect(() => {
@@ -53,14 +54,8 @@ export default function GameScreen() {
 
     recognition.onend = () => {
       console.log("Ses tanıma durdu");
-      // Kullanıcı durdurmadıysa otomatik yeniden başlat
-      if (recognitionRef.current && listening) {
-        try {
-          recognition.start();
-        } catch (error) {
-          console.log("Yeniden başlatma hatası:", error);
-        }
-      }
+      setListening(false);
+      setInterimText("");
     };
 
     recognitionRef.current = recognition;
@@ -68,7 +63,7 @@ export default function GameScreen() {
     return () => {
       if (recognitionRef.current) recognitionRef.current.stop();
     };
-  }, [listening]);
+  }, []);
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -82,6 +77,13 @@ export default function GameScreen() {
     }
     setInput("");
   }, [currentScenario?.id]);
+
+  // Textarea'ya focus ver
+  useEffect(() => {
+    if (!listening && textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  }, [listening]);
 
   if (!currentScenario) return <div style={empty}>Senaryo seçilmedi.</div>;
 
@@ -120,6 +122,7 @@ export default function GameScreen() {
     stopListening(); // gönderirken mikrofonu durdur
     setMessages((prev) => [...prev, { sender: "user", text: userMessage }]);
     setInput("");
+    setInterimText("");
     setLoading(true);
 
     try {
@@ -148,6 +151,15 @@ export default function GameScreen() {
       setMessages([{ sender: "ai", text: currentScenario.first_message }]);
     } else setMessages([]);
     setInput("");
+    setInterimText("");
+  };
+
+  // Enter tuşu ile gönderme
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
   };
 
   return (
@@ -187,14 +199,10 @@ export default function GameScreen() {
         <div style={inputSection}>
           <div style={{ position: "relative" }}>
             <textarea
+              ref={textareaRef}
               value={input + (interimText ? " " + interimText : "")}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  if ((input + interimText).trim()) sendMessage();
-                }
-              }}
+              onKeyDown={handleKeyDown}
               placeholder={listening ? "Konuşun..." : "Mesajınızı yazın…"}
               disabled={loading}
               rows={2}
@@ -244,7 +252,7 @@ export default function GameScreen() {
             <div>
               <div style={{ fontWeight: 600, marginBottom: 4 }}>Konuşun...</div>
               <div style={{ fontSize: 12, opacity: 0.8 }}>
-                ✓ işaretine basarak bitirin
+                ✓ işaretine basarak veya Enter ile bitirin
               </div>
             </div>
           </div>
