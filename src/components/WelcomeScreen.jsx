@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { useGame } from "../context/GameContext";
 
 export default function WelcomeScreen() {
   const [displayedText, setDisplayedText] = useState("");
@@ -219,4 +218,3 @@ if (typeof document !== "undefined") {
     document.head.appendChild(styleSheet);
   }
 }
-
