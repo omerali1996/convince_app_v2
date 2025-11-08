@@ -44,9 +44,9 @@ Hazırsan, oyun başlasın. 🧠💥`;
         if (index < fullText.length) {
           setDisplayedText(fullText.slice(0, index + 1));
 
-          // Boşluk, satır sonu veya emoji değilse ve her 3 karakterde bir ses çal
+          // Boşluk, satır sonu veya emoji değilse ve her 30 karakterde bir ses çal (10 kat daha az)
           const currentChar = fullText[index];
-          if (currentChar !== " " && currentChar !== "\n" && currentChar.trim() !== "" && index % 3 === 0) {
+          if (currentChar !== " " && currentChar !== "\n" && currentChar.trim() !== "" && index % 30 === 0) {
             playKeySound();
           }
 
@@ -55,6 +55,12 @@ Hazırsan, oyun başlasın. 🧠💥`;
           setIsComplete(true);
           setIsTyping(false);
           clearInterval(interval);
+          
+          // Ses dosyasını temizle
+          if (keySoundRef.current) {
+            keySoundRef.current.pause();
+            keySoundRef.current = null;
+          }
           
           // Yazı bittikten sonra butonu göster
           setTimeout(() => {
@@ -68,6 +74,11 @@ Hazırsan, oyun başlasın. 🧠💥`;
 
     return () => {
       clearTimeout(startTimeout);
+      // Component unmount olduğunda ses dosyasını temizle
+      if (keySoundRef.current) {
+        keySoundRef.current.pause();
+        keySoundRef.current = null;
+      }
     };
   }, []);
 
