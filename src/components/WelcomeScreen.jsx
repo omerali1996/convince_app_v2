@@ -24,8 +24,8 @@ Hazırsan, oyun başlasın. 🧠💥`;
     if (keySoundRef.current) {
       // Ses dosyasını her seferinde yeni bir instance ile çal
       const sound = keySoundRef.current.cloneNode();
-      sound.volume = 0.12 + Math.random() * 0.08; // 0.12-0.20 arası (daha yumuşak)
-      sound.playbackRate = 0.9 + Math.random() * 0.15; // Hafif tempo varyasyonu
+      sound.volume = 0.15; // Sabit ses seviyesi
+      sound.playbackRate = 1.0; // Sabit tempo
       sound.play().catch(err => console.log("Ses çalınamadı:", err));
     }
   };
@@ -61,7 +61,7 @@ Hazırsan, oyun başlasın. 🧠💥`;
             setShowButton(true);
           }, 500);
         }
-      }, 65); // 65ms - yazı akışı ile tam uyumlu
+      }, 150); // 150ms - yavaş ve düşünceli bir tempo
 
       return () => clearInterval(interval);
     }, 1200); // Başlık animasyonu için 1.2 saniye bekle
