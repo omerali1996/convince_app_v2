@@ -5,15 +5,16 @@ import { motion } from "framer-motion";
 import { useGame } from "../context/GameContext";
 
 export default function WelcomeScreen() {
-  const { startGame } = useGame(); // 👈 Context'ten al
+  const { startGame } = useGame();
   const [displayedText, setDisplayedText] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [showButton, setShowButton] = useState(false);
 
-  // 🔊 Tek Audio + sabit aralıklı tetikleme
+  // 🔊 Tek Audio + metronom + autoplay unlock
   const keyAudioRef = useRef(null);
   const nextTickRef = useRef(0);
   const CLICK_INTERVAL = 180; // ms
+  const [audioReady, setAudioReady] = useState(false);
 
   const fullText = `Hoş geldin.
 Hayat, her gün sayısız küçük müzakerenin içinde geçiyor.
@@ -27,10 +28,12 @@ Hazırsan, oyun başlasın. 🧠💥`;
 
   const playKeySound = () => {
     const a = keyAudioRef.current;
-    if (!a) return;
+    if (!a || !audioReady) return;        // 🔐 hazır değilse çalma (autoplay reddini önler)
+
     const now = performance.now();
     if (now < nextTickRef.current) return; // metronom
     if (!a.paused) return;                 // üst üste bindirme
+
     try {
       a.volume = 0.06;
       a.playbackRate = 1.0;
@@ -49,11 +52,41 @@ Hazırsan, oyun başlasın. 🧠💥`;
     } catch {}
   };
 
+  // 🔓 Autoplay “priming” ve fallback unlock
   useEffect(() => {
     keyAudioRef.current = new Audio("/sounds/mechanical-key.mp3");
-    keyAudioRef.current.preload = "auto";
-    keyAudioRef.current.loop = false;
+    const a = keyAudioRef.current;
+    a.preload = "auto";
+    a.loop = false;
 
+    // 1) Muted autoplay priming (çoğu tarayıcıda sesi “unlock” eder)
+    const prime = async () => {
+      try {
+        a.muted = true;
+        await a.play();
+        a.pause();
+        a.currentTime = 0;
+        a.muted = false;
+        setAudioReady(true);
+      } catch {
+        // 2) Fallback: ilk kullanıcı etkileşiminde unlock
+        const unlock = async () => {
+          try {
+            a.muted = true;
+            await a.play();
+            a.pause();
+            a.currentTime = 0;
+            a.muted = false;
+            setAudioReady(true);
+            window.removeEventListener("pointerdown", unlock, { capture: true });
+          } catch {}
+        };
+        window.addEventListener("pointerdown", unlock, { capture: true, once: true });
+      }
+    };
+    prime();
+
+    // Typewriter akışı
     const startTimeout = setTimeout(() => {
       setIsTyping(true);
       let index = 0;
@@ -67,7 +100,7 @@ Hazırsan, oyun başlasın. 🧠💥`;
         } else {
           setIsTyping(false);
           clearInterval(interval);
-          stopKeySound();                      // yazı bitince ses durdur
+          stopKeySound();
           setTimeout(() => setShowButton(true), 500);
         }
       }, 50);
@@ -83,8 +116,8 @@ Hazırsan, oyun başlasın. 🧠💥`;
   }, []);
 
   const handleStart = () => {
-    stopKeySound(); // güvenli kapanış
-    startGame();    // 👈 welcome → scenarios
+    stopKeySound();
+    startGame(); // welcome → scenarios
   };
 
   return (
@@ -195,21 +228,3 @@ const buttonStyle = {
   letterSpacing: "0.5px",
   textTransform: "uppercase",
 };
-
-if (typeof document !== "undefined") {
-  const styleSheet = document.createElement("style");
-  styleSheet.textContent = `
-    @keyframes blink {
-      0%, 50% { opacity: 1; }
-      51%, 100% { opacity: 0; }
-    }
-
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-  `;
-  if (!document.head.querySelector('[data-welcome-styles]')) {
-    styleSheet.setAttribute("data-welcome-styles", "true");
-    document.head.appendChild(styleSheet);
-  }
-}
-
-
