@@ -18,8 +18,8 @@ Her senaryo, iletişim tarzını güçlendirmen için bir meydan okuma.
 Burada amaç sadece kendini tanımak değil — daha stratejik, daha etkili, daha güçlü bir müzakereci olmak.
 Hazırsan, oyun başlasın. 🧠💥`;
 
-  // Gerçekçi "click-click" daktilo sesi
-  const playTypeSound = () => {
+  // Mekanik klavye tuş sesi
+  const playKeySound = () => {
     if (!audioContextRef.current) {
       audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
     }
@@ -27,37 +27,76 @@ Hazırsan, oyun başlasın. 🧠💥`;
     const audioContext = audioContextRef.current;
     const now = audioContext.currentTime;
     
-    // İlk "click" sesi
+    // Tuş basma sesi (downstroke)
     const osc1 = audioContext.createOscillator();
     const gain1 = audioContext.createGain();
+    const filter1 = audioContext.createBiquadFilter();
     
-    osc1.connect(gain1);
+    osc1.connect(filter1);
+    filter1.connect(gain1);
     gain1.connect(audioContext.destination);
     
-    osc1.frequency.value = 1200 + Math.random() * 200; // Yüksek frekanslı click
     osc1.type = 'square';
+    osc1.frequency.value = 150 + Math.random() * 50;
     
-    gain1.gain.setValueAtTime(0.02, now);
-    gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.02);
+    filter1.type = 'bandpass';
+    filter1.frequency.value = 2000;
+    filter1.Q.value = 1;
+    
+    gain1.gain.setValueAtTime(0.03, now);
+    gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
     
     osc1.start(now);
-    osc1.stop(now + 0.02);
+    osc1.stop(now + 0.03);
     
-    // İkinci "clack" sesi (biraz sonra ve daha yumuşak)
+    // Tuş bırakma sesi (upstroke) - hafif plastik tık
     const osc2 = audioContext.createOscillator();
     const gain2 = audioContext.createGain();
+    const filter2 = audioContext.createBiquadFilter();
     
-    osc2.connect(gain2);
+    osc2.connect(filter2);
+    filter2.connect(gain2);
     gain2.connect(audioContext.destination);
     
-    osc2.frequency.value = 800 + Math.random() * 150; // Daha alçak frekanslı clack
     osc2.type = 'square';
+    osc2.frequency.value = 200 + Math.random() * 100;
     
-    gain2.gain.setValueAtTime(0.015, now + 0.015);
-    gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
+    filter2.type = 'highpass';
+    filter2.frequency.value = 1500;
     
-    osc2.start(now + 0.015);
-    osc2.stop(now + 0.035);
+    gain2.gain.setValueAtTime(0.02, now + 0.04);
+    gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+    
+    osc2.start(now + 0.04);
+    osc2.stop(now + 0.06);
+    
+    // Hafif beyaz gürültü (plastik dokuma)
+    const bufferSize = 4096;
+    const noiseBuffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+    const output = noiseBuffer.getChannelData(0);
+    
+    for (let i = 0; i < bufferSize; i++) {
+      output[i] = Math.random() * 2 - 1;
+    }
+    
+    const noise = audioContext.createBufferSource();
+    const noiseGain = audioContext.createGain();
+    const noiseFilter = audioContext.createBiquadFilter();
+    
+    noise.buffer = noiseBuffer;
+    noise.connect(noiseFilter);
+    noiseFilter.connect(noiseGain);
+    noiseGain.connect(audioContext.destination);
+    
+    noiseFilter.type = 'bandpass';
+    noiseFilter.frequency.value = 3000;
+    noiseFilter.Q.value = 0.5;
+    
+    noiseGain.gain.setValueAtTime(0.008, now);
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.02);
+    
+    noise.start(now);
+    noise.stop(now + 0.02);
   };
 
   useEffect(() => {
@@ -69,7 +108,7 @@ Hazırsan, oyun başlasın. 🧠💥`;
         // Boşluk ve satır başı dışındaki karakterlerde ses çal
         const currentChar = fullText[index];
         if (currentChar !== ' ' && currentChar !== '\n') {
-          playTypeSound();
+          playKeySound();
         }
         
         index++;
@@ -77,7 +116,7 @@ Hazırsan, oyun başlasın. 🧠💥`;
         setIsComplete(true);
         clearInterval(interval);
       }
-    }, 50); // Daha yavaş: 50ms'de bir karakter
+    }, 60); // 60ms'de bir karakter (doğal klavye hızı)
 
     return () => {
       clearInterval(interval);
