@@ -49,9 +49,10 @@ def ask():
         system_prompt_text = scenario["System Prompt"]
 
         system_content = (
-            "Sen bu hikayedeki X'sin. Nasıl davranman gerektiği ana prompt içinde verilmiştir.\n"
             f"Hikaye: {story_text}\n"
-            f"Ana prompt: {system_prompt_text}"
+            f"Ana prompt: {system_prompt_text}, If the other party becomes aggressive, disrespectful, or uses profanity, do not continue negotiating. 
+            Calmly say, “This conversation is no longer productive. I’m ending the negotiation here,” and walk away. 
+            Do not argue or justify your decision."
         )
 
         messages = [{"role": "system", "content": system_content}]
@@ -83,6 +84,7 @@ def ask():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
 
 
 
