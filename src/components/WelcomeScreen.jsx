@@ -9,6 +9,7 @@ export default function WelcomeScreen() {
 
   // Gerçek mekanik klavye sesi dosyası
   const keySoundRef = useRef(null);
+  const isTypingRef = useRef(false);
 
   const fullText = `Hoş geldin.
 Hayat, her gün sayısız küçük müzakerenin içinde geçiyor.
@@ -21,7 +22,7 @@ Burada amaç sadece kendini tanımak değil — daha stratejik, daha etkili, dah
 Hazırsan, oyun başlasın. 🧠💥`;
 
   const playKeySound = () => {
-    if (keySoundRef.current && isTyping) {
+    if (keySoundRef.current && isTypingRef.current) {
       // Ses dosyasını her seferinde yeni bir instance ile çal
       const sound = keySoundRef.current.cloneNode();
       sound.volume = 0.06; // Çok daha düşük ses
