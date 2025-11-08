@@ -24,8 +24,8 @@ Hazırsan, oyun başlasın. 🧠💥`;
     if (keySoundRef.current) {
       // Ses dosyasını her seferinde yeni bir instance ile çal
       const sound = keySoundRef.current.cloneNode();
-      sound.volume = 0.15; // Sabit ses seviyesi
-      sound.playbackRate = 0.6; // Sabit tempo
+      sound.volume = 0.06; // Çok daha düşük ses
+      sound.playbackRate = 0.9; // Biraz daha yavaş
       sound.play().catch(err => console.log("Ses çalınamadı:", err));
     }
   };
@@ -44,9 +44,9 @@ Hazırsan, oyun başlasın. 🧠💥`;
         if (index < fullText.length) {
           setDisplayedText(fullText.slice(0, index + 1));
 
-          // Boşluk, satır sonu veya emoji değilse ses çal
+          // Boşluk, satır sonu veya emoji değilse ve her 3 karakterde bir ses çal
           const currentChar = fullText[index];
-          if (currentChar !== " " && currentChar !== "\n" && currentChar.trim() !== "") {
+          if (currentChar !== " " && currentChar !== "\n" && currentChar.trim() !== "" && index % 3 === 0) {
             playKeySound();
           }
 
@@ -61,7 +61,7 @@ Hazırsan, oyun başlasın. 🧠💥`;
             setShowButton(true);
           }, 500);
         }
-      }, 300); // 300ms - çok yavaş ve sakin tempo
+      }, 50); // 50ms - normal klavye yazma hızı
 
       return () => clearInterval(interval);
     }, 1200); // Başlık animasyonu için 1.2 saniye bekle
