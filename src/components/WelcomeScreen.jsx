@@ -7,9 +7,8 @@ export default function WelcomeScreen() {
   const [isTyping, setIsTyping] = useState(false);
   const [showButton, setShowButton] = useState(false);
 
-  // Klavye sesleri için referanslar
-  const audioContextRef = useRef(null);
-  const keySoundsRef = useRef([]);
+  // Gerçek mekanik klavye sesi dosyası
+  const keySoundRef = useRef(null);
 
   const fullText = `Hoş geldin.
 Hayat, her gün sayısız küçük müzakerenin içinde geçiyor.
@@ -21,40 +20,22 @@ Her senaryo, iletişim tarzını güçlendirmen için bir meydan okuma.
 Burada amaç sadece kendini tanımak değil — daha stratejik, daha etkili, daha güçlü bir müzakereci olmak.
 Hazırsan, oyun başlasın. 🧠💥`;
 
-  // Basit klavye sesi oluştur
-  const createKeySound = () => {
-    if (!audioContextRef.current) {
-      audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    
-    const ctx = audioContextRef.current;
-    const oscillator = ctx.createOscillator();
-    const gainNode = ctx.createGain();
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(ctx.destination);
-    
-    // Mekanik klavye benzeri ses (kısa, keskin)
-    oscillator.type = 'square';
-    oscillator.frequency.setValueAtTime(800 + Math.random() * 200, ctx.currentTime);
-    
-    gainNode.gain.setValueAtTime(0.03, ctx.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
-    
-    oscillator.start(ctx.currentTime);
-    oscillator.stop(ctx.currentTime + 0.05);
-  };
-
   const playKeySound = () => {
-    try {
-      createKeySound();
-    } catch (err) {
-      console.log("Ses çalınamadı:", err);
+    if (keySoundRef.current) {
+      // Ses dosyasını her seferinde yeni bir instance ile çal
+      const sound = keySoundRef.current.cloneNode();
+      sound.volume = 0.15 + Math.random() * 0.1; // 0.15-0.25 arası doğal varyasyon
+      sound.playbackRate = 0.95 + Math.random() * 0.1; // Hafif tempo varyasyonu
+      sound.play().catch(err => console.log("Ses çalınamadı:", err));
     }
   };
 
   useEffect(() => {
-    // Animasyon başlamadan önce kısa bir gecikme
+    // Ses dosyasını yükle
+    keySoundRef.current = new Audio("/sounds/mechanical-key.mp3");
+    keySoundRef.current.preload = "auto";
+
+    // Animasyon başlamadan önce kısa bir gecikme (başlık animasyonunun bitmesi için)
     const startTimeout = setTimeout(() => {
       setIsTyping(true);
       let index = 0;
@@ -63,7 +44,7 @@ Hazırsan, oyun başlasın. 🧠💥`;
         if (index < fullText.length) {
           setDisplayedText(fullText.slice(0, index + 1));
 
-          // Boşluk veya satır sonu değilse ses çal
+          // Boşluk, satır sonu veya emoji değilse ses çal
           const currentChar = fullText[index];
           if (currentChar !== " " && currentChar !== "\n" && currentChar.trim() !== "") {
             playKeySound();
@@ -83,14 +64,10 @@ Hazırsan, oyun başlasın. 🧠💥`;
       }, 80); // 80ms'de bir karakter (yavaş ve okumaya uygun)
 
       return () => clearInterval(interval);
-    }, 1200);
+    }, 1200); // Başlık animasyonu için 1.2 saniye bekle
 
     return () => {
       clearTimeout(startTimeout);
-      // Audio context temizliği
-      if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
-        audioContextRef.current.close();
-      }
     };
   }, []);
 
