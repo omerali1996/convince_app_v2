@@ -18,7 +18,6 @@ export default function GameScreen() {
   useEffect(() => {
     const SpeechRecognition =
       window.SpeechRecognition || window.webkitSpeechRecognition;
-    
     if (!SpeechRecognition) return;
 
     const recognition = new SpeechRecognition();
@@ -27,7 +26,7 @@ export default function GameScreen() {
     recognition.lang = "tr-TR";
 
     recognition.onstart = () => {
-      console.log("Ses tanıma başladı");
+      console.log("🎤 Ses tanıma başladı");
       setListening(true);
       setInterimText("");
     };
@@ -38,34 +37,24 @@ export default function GameScreen() {
 
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const transcript = event.results[i][0].transcript;
-        if (event.results[i].isFinal) {
-          final += transcript + " ";
-        } else {
-          interim += transcript;
-        }
+        if (event.results[i].isFinal) final += transcript + " ";
+        else interim += transcript;
       }
 
-      if (final) {
-        setInput((prev) => prev + final);
-      }
+      if (final) setInput((prev) => prev + final);
       setInterimText(interim);
     };
 
     recognition.onerror = (event) => {
       console.error("Ses tanıma hatası:", event.error);
-      if (event.error === "not-allowed") {
-        alert("Mikrofon izni verilmedi. Lütfen tarayıcı ayarlarından mikrofon erişimine izin verin.");
-        setListening(false);
-        setInterimText("");
-      } else {
-        setListening(false);
-        setInterimText("");
-      }
+      setListening(false);
+      setInterimText("");
     };
 
     recognition.onend = () => {
-      console.log("Ses tanıma bitti");
-      if (listening) {
+      console.log("Ses tanıma durdu");
+      // Eğer kullanıcı durdurmadıysa, otomatik yeniden başlat
+      if (recognitionRef.current && listening) {
         try {
           recognition.start();
         } catch (error) {
@@ -96,12 +85,39 @@ export default function GameScreen() {
 
   if (!currentScenario) return <div style={empty}>Senaryo seçilmedi.</div>;
 
+  // --- Mikrofon kontrolü ---
+  const startListening = () => {
+    if (!recognitionRef.current) {
+      alert("Tarayıcınız ses tanımayı desteklemiyor. Chrome veya Edge kullanın.");
+      return;
+    }
+    try {
+      recognitionRef.current.start();
+      setListening(true);
+    } catch (error) {
+      console.error("Mikrofon başlatılamadı:", error);
+    }
+  };
+
+  const stopListening = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      setListening(false);
+      setInterimText("");
+    }
+  };
+
+  const toggleMic = () => {
+    if (listening) stopListening();
+    else startListening();
+  };
+
+  // --- Mesaj gönder ---
   const sendMessage = async () => {
     const userMessage = input.trim();
     if (!userMessage || loading) return;
 
-    if (listening) stopListening();
-
+    stopListening(); // gönderirken mikrofonu durdur
     setMessages((prev) => [...prev, { sender: "user", text: userMessage }]);
     setInput("");
     setLoading(true);
@@ -117,52 +133,21 @@ export default function GameScreen() {
       setMessages((prev) => [...prev, { sender: "ai", text: aiText }]);
     } catch (err) {
       console.error(err);
-      setMessages((prev) => [...prev, { sender: "ai", text: "Cevap alınamadı." }]);
+      setMessages((prev) => [
+        ...prev,
+        { sender: "ai", text: "Cevap alınamadı." },
+      ]);
     } finally {
       setLoading(false);
     }
   };
 
   const resetChat = () => {
-    if (listening) stopListening();
-
+    stopListening();
     if (currentScenario?.first_message) {
       setMessages([{ sender: "ai", text: currentScenario.first_message }]);
-    } else {
-      setMessages([]);
-    }
+    } else setMessages([]);
     setInput("");
-  };
-
-  const stopListening = () => {
-    if (recognitionRef.current && listening) {
-      setListening(false);
-      setInterimText("");
-      recognitionRef.current.stop();
-    }
-  };
-
-  const handleMicClick = () => {
-    if (!recognitionRef.current) {
-      alert("Tarayıcınız ses tanımayı desteklemiyor. Chrome veya Edge kullanmayı deneyin.");
-      return;
-    }
-
-    if (listening) {
-      stopListening();
-    } else {
-      try {
-        setInput("");
-        recognitionRef.current.start();
-      } catch (error) {
-        console.error("Mikrofon başlatma hatası:", error);
-        alert("Mikrofon başlatılamadı. Lütfen sayfayı yenileyin ve tekrar deneyin.");
-      }
-    }
-  };
-
-  const handleStopAndConfirm = () => {
-    if (listening) stopListening();
   };
 
   return (
@@ -179,11 +164,11 @@ export default function GameScreen() {
 
         <div className="scroll-area" style={chatContainer}>
           {messages.map((m, idx) => (
-            <div 
-              key={idx} 
+            <div
+              key={idx}
               style={{
                 ...(m.sender === "user" ? userMessage : aiMessage),
-                animation: `slideIn 0.6s ease-out ${idx * 0.08}s both`
+                animation: `slideIn 0.6s ease-out ${idx * 0.08}s both`,
               }}
             >
               <strong style={{ opacity: 0.85 }}>
@@ -211,7 +196,7 @@ export default function GameScreen() {
                 }
               }}
               placeholder={listening ? "Konuşun..." : "Mesajınızı yazın…"}
-              disabled={loading || listening}
+              disabled={loading}
               rows={2}
               style={{
                 ...inputStyle,
@@ -222,9 +207,9 @@ export default function GameScreen() {
             />
             {listening && (
               <button
-                onClick={handleStopAndConfirm}
+                onClick={stopListening}
                 style={stopButton}
-                title="Konuşmayı bitir ve onayla"
+                title="Konuşmayı bitir"
               >
                 ✓
               </button>
@@ -232,14 +217,14 @@ export default function GameScreen() {
           </div>
 
           <div style={buttonGroup}>
-            <button onClick={sendMessage} disabled={loading || listening} style={buttonPrimary}>
+            <button onClick={sendMessage} disabled={loading} style={buttonPrimary}>
               {loading ? "Gönderiliyor..." : "Gönder"}
             </button>
-            <button onClick={resetChat} style={buttonSecondary} disabled={listening}>
+            <button onClick={resetChat} style={buttonSecondary}>
               Yeni Oturum
             </button>
             <button
-              onClick={handleMicClick}
+              onClick={toggleMic}
               style={{
                 ...buttonSecondary,
                 background: listening ? "#2e8b57" : "#182240",
@@ -247,7 +232,7 @@ export default function GameScreen() {
             >
               {listening ? "🔴 Dinleniyor..." : "🗣️ Konuşun"}
             </button>
-            <button onClick={exitGame} style={buttonSecondary} disabled={listening}>
+            <button onClick={exitGame} style={buttonSecondary}>
               Çıkış
             </button>
           </div>
@@ -258,7 +243,9 @@ export default function GameScreen() {
             <div style={pulse}></div>
             <div>
               <div style={{ fontWeight: 600, marginBottom: 4 }}>Konuşun...</div>
-              <div style={{ fontSize: 12, opacity: 0.8 }}>✓ işaretine basarak bitirin</div>
+              <div style={{ fontSize: 12, opacity: 0.8 }}>
+                ✓ işaretine basarak bitirin
+              </div>
             </div>
           </div>
         )}
@@ -267,64 +254,26 @@ export default function GameScreen() {
   );
 }
 
-/* ---------- Animation Styles ---------- */
+/* ---------- Styles ---------- */
 const animationStyles = `
   @keyframes slideIn {
-    from {
-      opacity: 0;
-      transform: translateY(40px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
   }
-
-  @keyframes fadeInSlide {
-    from {
-      opacity: 0;
-      transform: translateY(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
   @keyframes pulse {
-    0%, 100% {
-      transform: scale(1);
-      opacity: 0.8;
-    }
-    50% {
-      transform: scale(1.3);
-      opacity: 0.4;
-    }
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.3); opacity: 0.4; }
   }
 `;
 
-/* ---------- Styles ---------- */
-const container = { 
-  display: "flex", 
-  flexDirection: "column", 
-  gap: 12,
-  animation: "fadeInSlide 0.5s ease-out"
-};
-
+const container = { display: "flex", flexDirection: "column", gap: 12 };
 const topCard = {
   background: "#0f162f",
   border: "1px solid rgba(255,255,255,.06)",
   borderRadius: 16,
   padding: 14,
 };
-
-const story = { 
-  marginTop: 6, 
-  color: "var(--text)", 
-  opacity: 0.95, 
-  lineHeight: 1.6 
-};
-
+const story = { marginTop: 6, color: "var(--text)", opacity: 0.95, lineHeight: 1.6 };
 const chatContainer = {
   flex: 1,
   padding: 12,
@@ -338,15 +287,12 @@ const chatContainer = {
   gap: 10,
   overflowY: "auto",
 };
-
 const bubbleBase = {
   padding: "10px 14px",
   borderRadius: 16,
   maxWidth: "85%",
-  wordWrap: "break-word",
   boxShadow: "0 8px 24px rgba(0,0,0,.22)",
 };
-
 const userMessage = {
   ...bubbleBase,
   alignSelf: "flex-end",
@@ -354,7 +300,6 @@ const userMessage = {
   color: "#101010",
   borderTopRightRadius: 4,
 };
-
 const aiMessage = {
   ...bubbleBase,
   alignSelf: "flex-start",
@@ -363,14 +308,12 @@ const aiMessage = {
   borderTopLeftRadius: 4,
   border: "1px solid rgba(255,255,255,.06)",
 };
-
 const inputSection = {
   display: "flex",
   flexDirection: "column",
   gap: 10,
   marginTop: 12,
 };
-
 const inputStyle = {
   width: "100%",
   padding: "10px 12px",
@@ -380,9 +323,7 @@ const inputStyle = {
   background: "#0f162f",
   color: "#fff",
   fontSize: 15,
-  lineHeight: 1.4,
 };
-
 const stopButton = {
   position: "absolute",
   right: 10,
@@ -400,16 +341,9 @@ const stopButton = {
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  boxShadow: "0 2px 8px rgba(46, 139, 87, 0.4)",
-  transition: "all 0.2s",
+  boxShadow: "0 2px 8px rgba(46,139,87,0.4)",
 };
-
-const buttonGroup = {
-  display: "flex",
-  flexDirection: "column",
-  gap: 8,
-};
-
+const buttonGroup = { display: "flex", flexDirection: "column", gap: 8 };
 const buttonPrimary = {
   background: "linear-gradient(180deg, #ffbe5c, #ffb84c)",
   border: "none",
@@ -419,7 +353,6 @@ const buttonPrimary = {
   color: "#101010",
   fontWeight: 600,
 };
-
 const buttonSecondary = {
   background: "#182240",
   border: "1px solid rgba(255,255,255,0.1)",
@@ -429,29 +362,26 @@ const buttonSecondary = {
   color: "#eaf0ff",
   fontWeight: 500,
 };
-
 const empty = {
   textAlign: "center",
   fontSize: 18,
   color: "var(--muted)",
   marginTop: 40,
 };
-
 const listeningIndicator = {
   position: "fixed",
   top: 20,
   right: 20,
-  background: "rgba(46, 139, 87, 0.95)",
+  background: "rgba(46,139,87,0.95)",
   color: "white",
   padding: "12px 20px",
   borderRadius: 30,
   display: "flex",
   alignItems: "center",
   gap: 10,
-  boxShadow: "0 4px 20px rgba(46, 139, 87, 0.4)",
+  boxShadow: "0 4px 20px rgba(46,139,87,0.4)",
   zIndex: 1000,
 };
-
 const pulse = {
   width: 12,
   height: 12,
