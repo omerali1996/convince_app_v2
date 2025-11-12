@@ -15,6 +15,10 @@ export default function WelcomeScreen() {
   const nextTickRef = useRef(0);
   const CLICK_INTERVAL = 180; // ms
 
+  // ⏱️ Yazım zamanlayıcıları (skip için temizleyebilmek adına)
+  const startTimeoutRef = useRef(null);
+  const typingIntervalRef = useRef(null);
+
   const fullText = `Hoş geldin.
 Hayat, her gün sayısız küçük müzakerenin içinde geçiyor.
 Kimi zaman bir arkadaşla, kimi zaman bir iş toplantısında, kimi zaman da kendinle.
@@ -49,16 +53,33 @@ Hazırsan, oyun başlasın. 🧠💥`;
     } catch {}
   };
 
+  // ⏩ Skip: klavye yazma efektini atla
+  const handleSkip = () => {
+    // zamanlayıcı/interval temizliği
+    if (startTimeoutRef.current) {
+      clearTimeout(startTimeoutRef.current);
+      startTimeoutRef.current = null;
+    }
+    if (typingIntervalRef.current) {
+      clearInterval(typingIntervalRef.current);
+      typingIntervalRef.current = null;
+    }
+    stopKeySound();
+    setDisplayedText(fullText);
+    setIsTyping(false);
+    setShowButton(true);
+  };
+
   useEffect(() => {
     keyAudioRef.current = new Audio("/sounds/mechanical-key.mp3");
     keyAudioRef.current.preload = "auto";
     keyAudioRef.current.loop = false;
 
-    const startTimeout = setTimeout(() => {
+    startTimeoutRef.current = setTimeout(() => {
       setIsTyping(true);
       let index = 0;
 
-      const interval = setInterval(() => {
+      typingIntervalRef.current = setInterval(() => {
         if (index < fullText.length) {
           setDisplayedText(fullText.slice(0, index + 1));
           const ch = fullText[index];
@@ -66,17 +87,23 @@ Hazırsan, oyun başlasın. 🧠💥`;
           index++;
         } else {
           setIsTyping(false);
-          clearInterval(interval);
+          clearInterval(typingIntervalRef.current);
+          typingIntervalRef.current = null;
           stopKeySound();                      // yazı bitince ses durdur
           setTimeout(() => setShowButton(true), 500);
         }
       }, 50);
-
-      return () => clearInterval(interval);
     }, 1200);
 
     return () => {
-      clearTimeout(startTimeout);
+      if (startTimeoutRef.current) {
+        clearTimeout(startTimeoutRef.current);
+        startTimeoutRef.current = null;
+      }
+      if (typingIntervalRef.current) {
+        clearInterval(typingIntervalRef.current);
+        typingIntervalRef.current = null;
+      }
       stopKeySound();
       keyAudioRef.current = null;
     };
@@ -95,13 +122,20 @@ Hazırsan, oyun başlasın. 🧠💥`;
         transition={{ duration: 0.6, ease: "easeOut" }}
         style={card}
       >
+        {/* ⏩ Skip butonu */}
+        {isTyping && (
+          <button onClick={handleSkip} style={skipBtn} title="Yazıyı atla">
+            Skip &rsaquo;
+          </button>
+        )}
+
         <motion.h1
           initial={{ y: 30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.8, ease: "easeOut" }}
           style={title}
         >
-          🕊️ İkna Oyunu
+          Müzakere.0
         </motion.h1>
 
         <div style={textContainer}>
@@ -149,6 +183,22 @@ const card = {
   maxWidth: 600,
   width: "90%",
   backdropFilter: "blur(10px)",
+  position: "relative", // ⏩ Skip butonunu konumlamak için
+};
+
+const skipBtn = {
+  position: "absolute",
+  top: 12,
+  right: 12,
+  background: "transparent",
+  border: "1px solid rgba(255,255,255,0.25)",
+  color: "rgba(255,255,255,0.85)",
+  padding: "6px 10px",
+  borderRadius: 10,
+  cursor: "pointer",
+  fontSize: 12,
+  letterSpacing: "0.3px",
+  transition: "all .2s ease",
 };
 
 const title = {
@@ -205,10 +255,12 @@ if (typeof document !== "undefined") {
     }
 
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+    /* Skip hover efekti */
+    button[style*="Skip"]{ }
   `;
   if (!document.head.querySelector('[data-welcome-styles]')) {
     styleSheet.setAttribute("data-welcome-styles", "true");
     document.head.appendChild(styleSheet);
   }
 }
-
