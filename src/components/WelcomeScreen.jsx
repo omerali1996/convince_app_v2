@@ -115,7 +115,7 @@ Hazırsan, oyun başlasın. 🧠💥`;
 
   return (
     <div className="ws-wrap" style={wrap}>
-      {/* 📱 Mobilde yazı alanını daha geniş yapan responsive stiller */}
+      {/* 📱 Mobil geniş yazı alanı + skip konumu için responsive CSS */}
       <style>{responsiveStyles}</style>
 
       <motion.div
@@ -169,23 +169,20 @@ Hazırsan, oyun başlasın. 🧠💥`;
 
 /* ---------- Responsive Styles ---------- */
 const responsiveStyles = `
-  /* Tablet ve altı */
   @media (max-width: 768px) {
     .ws-wrap { padding: 10px !important; }
 
-    /* Kartı genişlet, yan paddingleri kıs */
     .ws-card {
       max-width: 100% !important;
       width: 100% !important;
-      padding: 28px 14px !important;   /* 🔧 yanlar dar → metin daha geniş */
+      padding: 28px 14px !important;
       border-radius: 16px !important;
     }
 
-    /* Metin alanı daha fazla satır genişliği yakalasın */
     .ws-subtitle {
       font-size: 15px !important;
-      line-height: 1.65 !important;    /* biraz sıkı → daha az dikey uzama */
-      min-height: 44vh !important;     /* sabit yükseklik bir tık azaltıldı */
+      line-height: 1.65 !important;
+      min-height: 44vh !important;
       letter-spacing: 0.1px !important;
     }
 
@@ -197,21 +194,21 @@ const responsiveStyles = `
       padding: 12px 14px !important;
     }
 
+    /* ⏫ Skip daha yukarı */
     .ws-skipBtn {
-      top: 8px !important;
+      top: 4px !important;   /* 8 → 4 px */
       right: 8px !important;
       padding: 6px 10px !important;
       font-size: 12px !important;
     }
   }
 
-  /* Çok dar ekranlar (küçük telefonlar) */
   @media (max-width: 420px) {
     .ws-card {
-      padding: 24px 10px !important;   /* daha da az yan padding → daha geniş metin */
+      padding: 24px 10px !important;
     }
     .ws-subtitle {
-      font-size: 14px !important;      /* satıra daha çok karakter sığsın */
+      font-size: 14px !important;
       line-height: 1.6 !important;
       min-height: 40vh !important;
     }
@@ -237,12 +234,12 @@ const card = {
   maxWidth: 600,
   width: "90%",
   backdropFilter: "blur(10px)",
-  position: "relative", // ⏩ Skip butonunu konumlamak için
+  position: "relative",
 };
 
 const skipBtn = {
   position: "absolute",
-  top: 12,
+  top: 6,              // 🔼 12 → 6 px
   right: 12,
   background: "transparent",
   border: "1px solid rgba(255,255,255,0.25)",
