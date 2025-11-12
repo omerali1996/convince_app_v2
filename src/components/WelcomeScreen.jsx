@@ -115,7 +115,7 @@ Hazırsan, oyun başlasın. 🧠💥`;
 
   return (
     <div className="wel-wrap" style={wrap}>
-      {/* Responsive CSS */}
+      {/* 🔧 Mobilde içerik alanını genişleten responsive CSS */}
       <style>{responsiveWelStyles}</style>
 
       <motion.div
@@ -167,38 +167,40 @@ Hazırsan, oyun başlasın. 🧠💥`;
   );
 }
 
-/* ---------- Responsive CSS ---------- */
+/* ---------- Responsive CSS (mobilde içerik alanını genişlet) ---------- */
 const responsiveWelStyles = `
   @media (max-width: 768px) {
-    .wel-wrap { padding: 12px !important; }
+    .wel-wrap { padding: 8px !important; } /* dış boşluk azaldı → daha geniş içerik */
     .wel-card {
-      padding: 28px 20px !important;
-      max-width: 96% !important;
+      padding: 24px 12px !important;  /* yan padding azaldı → metin daha geniş */
+      max-width: 100% !important;
+      width: 100% !important;
       border-radius: 16px !important;
     }
     .wel-skipBtn {
-      top: 10px !important;
-      right: 10px !important;
+      top: 8px !important;
+      right: 8px !important;
       padding: 6px 10px !important;
       font-size: 12px !important;
     }
-    .wel-textContainer { margin-bottom: 24px !important; }
+    .wel-textContainer { margin-bottom: 22px !important; }
     .wel-subtitle {
-      font-size: 15px !important;
-      line-height: 1.7 !important;
-      min-height: 48vh !important; /* mobilde daha kısa alan */
+      font-size: 15px !important;     /* okunabilirliği koru */
+      line-height: 1.65 !important;   /* biraz sıkılaştır → daha az dikey uzama */
+      min-height: 44vh !important;    /* daha kısa sabit yükseklik */
     }
     .wel-startBtn {
       width: 100% !important;
       font-size: 16px !important;
-      padding: 12px 16px !important;
+      padding: 12px 14px !important;
     }
   }
 
   @media (max-width: 420px) {
     .wel-subtitle {
-      font-size: 14px !important;
-      min-height: 44vh !important;
+      font-size: 14px !important;     /* çok dar ekranlarda satıra daha fazla karakter */
+      line-height: 1.6 !important;
+      min-height: 40vh !important;
     }
   }
 `;
@@ -282,5 +284,4 @@ const buttonStyle = {
   boxShadow: "0 4px 12px rgba(255, 190, 92, 0.2)",
   transition: "all 0.2s ease",
   letterSpacing: "0.5px",
-  textTransform: "uppercase",
-};
+  textTransform: "upperc
