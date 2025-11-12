@@ -88,7 +88,7 @@ Hazırsan, oyun başlasın. 🧠💥`;
           setIsTyping(false);
           clearInterval(typingIntervalRef.current);
           typingIntervalRef.current = null;
-          stopKeySound();
+          stopKeySound(); // yazı bitince ses durdur
           setTimeout(() => setShowButton(true), 500);
         }
       }, 50);
@@ -114,20 +114,20 @@ Hazırsan, oyun başlasın. 🧠💥`;
   };
 
   return (
-    <div className="wel-wrap" style={wrap}>
-      {/* 🔧 Mobilde içerik alanını genişleten responsive CSS */}
-      <style>{responsiveWelStyles}</style>
+    <div className="ws-wrap" style={wrap}>
+      {/* 📱 Mobilde yazı alanını daha geniş yapan responsive stiller */}
+      <style>{responsiveStyles}</style>
 
       <motion.div
         initial={{ y: 40, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className="wel-card"
+        className="ws-card"
         style={card}
       >
         {/* ⏩ Skip butonu */}
         {isTyping && (
-          <button onClick={handleSkip} className="wel-skipBtn" style={skipBtn} title="Yazıyı atla">
+          <button onClick={handleSkip} className="ws-skipBtn" style={skipBtn} title="Yazıyı atla">
             Skip &rsaquo;
           </button>
         )}
@@ -141,8 +141,8 @@ Hazırsan, oyun başlasın. 🧠💥`;
           Müzakere.0
         </motion.h1>
 
-        <div className="wel-textContainer" style={textContainer}>
-          <div className="wel-subtitle" style={subtitle}>
+        <div className="ws-textContainer" style={textContainer}>
+          <div className="ws-subtitle" style={subtitle}>
             {displayedText}
             {isTyping && <span style={cursor}>|</span>}
           </div>
@@ -154,7 +154,7 @@ Hazırsan, oyun başlasın. 🧠💥`;
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
             onClick={handleStart}
-            className="wel-startBtn"
+            className="ws-startBtn"
             style={buttonStyle}
             whileHover={{ scale: 1.05, boxShadow: "0 6px 16px rgba(255, 190, 92, 0.3)" }}
             whileTap={{ scale: 0.95 }}
@@ -167,38 +167,51 @@ Hazırsan, oyun başlasın. 🧠💥`;
   );
 }
 
-/* ---------- Responsive CSS (mobilde içerik alanını genişlet) ---------- */
-const responsiveWelStyles = `
+/* ---------- Responsive Styles ---------- */
+const responsiveStyles = `
+  /* Tablet ve altı */
   @media (max-width: 768px) {
-    .wel-wrap { padding: 8px !important; } /* dış boşluk azaldı → daha geniş içerik */
-    .wel-card {
-      padding: 24px 12px !important;  /* yan padding azaldı → metin daha geniş */
+    .ws-wrap { padding: 10px !important; }
+
+    /* Kartı genişlet, yan paddingleri kıs */
+    .ws-card {
       max-width: 100% !important;
       width: 100% !important;
+      padding: 28px 14px !important;   /* 🔧 yanlar dar → metin daha geniş */
       border-radius: 16px !important;
     }
-    .wel-skipBtn {
+
+    /* Metin alanı daha fazla satır genişliği yakalasın */
+    .ws-subtitle {
+      font-size: 15px !important;
+      line-height: 1.65 !important;    /* biraz sıkı → daha az dikey uzama */
+      min-height: 44vh !important;     /* sabit yükseklik bir tık azaltıldı */
+      letter-spacing: 0.1px !important;
+    }
+
+    .ws-textContainer { margin-bottom: 22px !important; }
+
+    .ws-startBtn {
+      width: 100% !important;
+      font-size: 16px !important;
+      padding: 12px 14px !important;
+    }
+
+    .ws-skipBtn {
       top: 8px !important;
       right: 8px !important;
       padding: 6px 10px !important;
       font-size: 12px !important;
     }
-    .wel-textContainer { margin-bottom: 22px !important; }
-    .wel-subtitle {
-      font-size: 15px !important;     /* okunabilirliği koru */
-      line-height: 1.65 !important;   /* biraz sıkılaştır → daha az dikey uzama */
-      min-height: 44vh !important;    /* daha kısa sabit yükseklik */
-    }
-    .wel-startBtn {
-      width: 100% !important;
-      font-size: 16px !important;
-      padding: 12px 14px !important;
-    }
   }
 
+  /* Çok dar ekranlar (küçük telefonlar) */
   @media (max-width: 420px) {
-    .wel-subtitle {
-      font-size: 14px !important;     /* çok dar ekranlarda satıra daha fazla karakter */
+    .ws-card {
+      padding: 24px 10px !important;   /* daha da az yan padding → daha geniş metin */
+    }
+    .ws-subtitle {
+      font-size: 14px !important;      /* satıra daha çok karakter sığsın */
       line-height: 1.6 !important;
       min-height: 40vh !important;
     }
@@ -224,7 +237,7 @@ const card = {
   maxWidth: 600,
   width: "90%",
   backdropFilter: "blur(10px)",
-  position: "relative",
+  position: "relative", // ⏩ Skip butonunu konumlamak için
 };
 
 const skipBtn = {
@@ -284,4 +297,21 @@ const buttonStyle = {
   boxShadow: "0 4px 12px rgba(255, 190, 92, 0.2)",
   transition: "all 0.2s ease",
   letterSpacing: "0.5px",
-  textTransform: "upperc
+  textTransform: "uppercase",
+};
+
+if (typeof document !== "undefined") {
+  const styleSheet = document.createElement("style");
+  styleSheet.textContent = `
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+  `;
+  if (!document.head.querySelector('[data-welcome-styles]')) {
+    styleSheet.setAttribute("data-welcome-styles", "true");
+    document.head.appendChild(styleSheet);
+  }
+}
