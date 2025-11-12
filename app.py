@@ -51,8 +51,11 @@ def ask():
         system_content = (
             f"Hikaye: {story_text}\n"
             f"""Ana prompt: {system_prompt_text}, If the other party becomes aggressive, disrespectful, or uses profanity, do not continue negotiating. 
-            Calmly say, “This conversation is no longer productive. I’m ending the negotiation here,” and walk away. 
-            Do not argue or justify your decision."""
+            Calmly say, “This conversation is no longer productive. I’m ending the negotiation here.” 
+            In Turkish, also say: "Görüşmeyi burada sonlandırıyorum." 
+            Then stop all responses and end the conversation. 
+            Do not argue or justify your decision.
+            """
         )
 
         messages = [{"role": "system", "content": system_content}]
@@ -84,6 +87,7 @@ def ask():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
 
 
 
