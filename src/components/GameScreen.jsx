@@ -16,6 +16,15 @@ export default function GameScreen() {
   const recognitionRef = useRef(null);
   const textareaRef = useRef(null);
 
+  // 🔽 EKLENDİ: hedef cümleyi güvenli karşılaştırmak için normalize yardımcı fonksiyonu
+  const norm = (s = "") =>
+    s
+      .normalize("NFC")
+      .toLowerCase()
+      .replace(/\*|_|`|~|”|“|″|„|«|»|’|‘|"/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+
   // --- Speech Recognition Setup ---
   useEffect(() => {
     const SpeechRecognition =
@@ -135,6 +144,21 @@ export default function GameScreen() {
 
       const aiText = (res.data?.answer || "").trim();
       setMessages((prev) => [...prev, { sender: "ai", text: aiText }]);
+
+      // 🔽 EKLENDİ — hedef cümle yakalanırsa başarı mesajı göster ve kilitle
+      const goal = currentScenario?.goal || currentScenario?.Goal;
+      if (goal && norm(aiText).includes(norm(goal))) {
+        setChatEnded(true);
+        setMessages((prev) => [
+          ...prev,
+          {
+            sender: "ai",
+            text:
+              "🎯 **Senaryo başarıyla tamamlandı!**\n\n" +
+              "Hedef cümleye ulaşıldı. Diğer senaryolara göz atmak için **Çıkış** ya da **Yeni Oturum** seçeneklerini kullanabilirsiniz.",
+          },
+        ]);
+      }
 
       // ✅ Cümle "görüşmeyi burada sonlandırıyorum" içeriyorsa kilitle
       if (aiText.toLowerCase().includes("görüşmeyi burada sonlandırıyorum")) {
