@@ -11,6 +11,7 @@ export default function GameScreen() {
   const [loading, setLoading] = useState(false);
   const [listening, setListening] = useState(false);
   const [interimText, setInterimText] = useState("");
+  const [chatEnded, setChatEnded] = useState(false);
   const scrollRef = useRef();
   const recognitionRef = useRef(null);
   const textareaRef = useRef(null);
@@ -76,6 +77,7 @@ export default function GameScreen() {
       setMessages([]);
     }
     setInput("");
+    setChatEnded(false);
   }, [currentScenario?.id]);
 
   // Textarea'ya focus ver
@@ -117,7 +119,7 @@ export default function GameScreen() {
   // --- Mesaj gönder ---
   const sendMessage = async () => {
     const userMessage = input.trim();
-    if (!userMessage || loading) return;
+    if (!userMessage || loading || chatEnded) return;
 
     stopListening(); // gönderirken mikrofonu durdur
     setMessages((prev) => [...prev, { sender: "user", text: userMessage }]);
@@ -134,6 +136,10 @@ export default function GameScreen() {
 
       const aiText = (res.data?.answer || "").trim();
       setMessages((prev) => [...prev, { sender: "ai", text: aiText }]);
+
+      if (aiText.trim() === "Bu konuşma artık yapıcı değil. Görüşmeyi burada sonlandırıyorum.") {
+        setChatEnded(true);
+      }
     } catch (err) {
       console.error(err);
       setMessages((prev) => [
@@ -152,6 +158,7 @@ export default function GameScreen() {
     } else setMessages([]);
     setInput("");
     setInterimText("");
+    setChatEnded(false);
   };
 
   // Enter tuşu ile gönderme
@@ -194,6 +201,12 @@ export default function GameScreen() {
             </div>
           ))}
           <div ref={scrollRef}></div>
+
+          {chatEnded && (
+            <div style={chatEndedBanner}>
+              🔒 Görüşme sonlandırıldı. Yeni oturum başlatabilirsiniz.
+            </div>
+          )}
         </div>
 
         <div style={inputSection}>
@@ -203,8 +216,14 @@ export default function GameScreen() {
               value={input + (interimText ? " " + interimText : "")}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={listening ? "Konuşun..." : "Mesajınızı yazın…"}
-              disabled={loading}
+              placeholder={
+                chatEnded
+                  ? "Görüşme sonlandırıldı."
+                  : listening
+                  ? "Konuşun..."
+                  : "Mesajınızı yazın…"
+              }
+              disabled={loading || chatEnded}
               rows={2}
               style={{
                 ...inputStyle,
@@ -213,7 +232,7 @@ export default function GameScreen() {
                 resize: "none",
               }}
             />
-            {listening && (
+            {listening && !chatEnded && (
               <button
                 onClick={stopListening}
                 style={stopButton}
@@ -225,7 +244,7 @@ export default function GameScreen() {
           </div>
 
           <div style={buttonGroup}>
-            <button onClick={sendMessage} disabled={loading} style={buttonPrimary}>
+            <button onClick={sendMessage} disabled={loading || chatEnded} style={buttonPrimary}>
               {loading ? "Gönderiliyor..." : "Gönder"}
             </button>
             <button onClick={resetChat} style={buttonSecondary}>
@@ -233,12 +252,19 @@ export default function GameScreen() {
             </button>
             <button
               onClick={toggleMic}
+              disabled={chatEnded}
               style={{
                 ...buttonSecondary,
                 background: listening ? "#2e8b57" : "#182240",
+                opacity: chatEnded ? 0.6 : 1,
+                cursor: chatEnded ? "not-allowed" : "pointer",
               }}
             >
-              {listening ? "🔴 Dinleniyor..." : "🗣️ Konuşun"}
+              {chatEnded
+                ? "🔒 Görüşme bitti"
+                : listening
+                ? "🔴 Dinleniyor..."
+                : "🗣️ Konuşun"}
             </button>
             <button onClick={exitGame} style={buttonSecondary}>
               Çıkış
@@ -246,7 +272,7 @@ export default function GameScreen() {
           </div>
         </div>
 
-        {listening && (
+        {listening && !chatEnded && (
           <div style={listeningIndicator}>
             <div style={pulse}></div>
             <div>
@@ -396,4 +422,15 @@ const pulse = {
   borderRadius: "50%",
   background: "#ff4444",
   animation: "pulse 1.5s ease-in-out infinite",
+};
+const chatEndedBanner = {
+  textAlign: "center",
+  background: "#1b273d",
+  color: "#ffbe5c",
+  border: "1px solid rgba(255,255,255,0.1)",
+  borderRadius: 12,
+  padding: "10px 14px",
+  marginTop: 8,
+  fontWeight: 500,
+  opacity: 0.9,
 };
