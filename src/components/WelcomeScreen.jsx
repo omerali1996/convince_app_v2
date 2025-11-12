@@ -115,7 +115,7 @@ Hazırsan, oyun başlasın. 🧠💥`;
 
   return (
     <div className="ws-wrap" style={wrap}>
-      {/* 📱 Mobil geniş yazı alanı + skip konumu için responsive CSS */}
+      {/* 📱 Responsive CSS */}
       <style>{responsiveStyles}</style>
 
       <motion.div
@@ -125,7 +125,7 @@ Hazırsan, oyun başlasın. 🧠💥`;
         className="ws-card"
         style={card}
       >
-        {/* ⏩ Skip butonu */}
+        {/* ⏩ Skip butonu (sağ altta) */}
         {isTyping && (
           <button onClick={handleSkip} className="ws-skipBtn" style={skipBtn} title="Yazıyı atla">
             Skip &rsaquo;
@@ -175,7 +175,7 @@ const responsiveStyles = `
     .ws-card {
       max-width: 100% !important;
       width: 100% !important;
-      padding: 28px 14px !important;
+      padding: 28px 14px 48px !important; /* altta skip için biraz boşluk */
       border-radius: 16px !important;
     }
 
@@ -194,9 +194,9 @@ const responsiveStyles = `
       padding: 12px 14px !important;
     }
 
-    /* ⏫ Skip daha yukarı */
+    /* ⤵ Skip sağ altta */
     .ws-skipBtn {
-      top: 4px !important;   /* 8 → 4 px */
+      bottom: 8px !important;
       right: 8px !important;
       padding: 6px 10px !important;
       font-size: 12px !important;
@@ -205,7 +205,7 @@ const responsiveStyles = `
 
   @media (max-width: 420px) {
     .ws-card {
-      padding: 24px 10px !important;
+      padding: 24px 10px 44px !important; /* altta skip için boşluk */
     }
     .ws-subtitle {
       font-size: 14px !important;
@@ -239,7 +239,7 @@ const card = {
 
 const skipBtn = {
   position: "absolute",
-  top: 6,              // 🔼 12 → 6 px
+  bottom: 12,          // ⤵ sağ altta
   right: 12,
   background: "transparent",
   border: "1px solid rgba(255,255,255,0.25)",
@@ -250,6 +250,7 @@ const skipBtn = {
   fontSize: 12,
   letterSpacing: "0.3px",
   transition: "all .2s ease",
+  zIndex: 2,
 };
 
 const title = {
