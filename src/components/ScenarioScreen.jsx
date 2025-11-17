@@ -57,6 +57,7 @@ export default function ScenariosScreen() {
 
                 <div style={storyBox}>
                   <h4 style={storyHeader}>📖 Senaryo </h4>
+
                   <div
                     style={{
                       ...storyText,
@@ -71,11 +72,9 @@ export default function ScenariosScreen() {
                       {preview.story}
                     </ReactMarkdown>
                   </div>
+
                   {!expanded && (
-                    <button
-                      onClick={() => setExpanded(true)}
-                      style={readMoreBtn}
-                    >
+                    <button onClick={() => setExpanded(true)} style={readMoreBtn}>
                       Daha fazla göster ↓
                     </button>
                   )}
@@ -106,7 +105,7 @@ export default function ScenariosScreen() {
   );
 }
 
-/* ---------- Styles ---------- */
+/* ---------- Styles (OldScenarios'tan birebir alınmış) ---------- */
 const container = {
   display: "flex",
   flexDirection: "column",
@@ -122,18 +121,12 @@ const headerRow = {
 
 const title = { fontSize: 22, fontWeight: 600, color: "var(--text)" };
 
-/* Responsive grid */
 const grid = {
   display: "grid",
-  gridTemplateColumns: "1fr 2fr",
+  gridTemplateColumns: window.innerWidth < 768 ? "1fr" : "1fr 2fr",
   gap: 14,
   minHeight: 360,
 };
-
-/* Mobile ekranlarda tek sütun */
-if (window.innerWidth < 768) {
-  grid.gridTemplateColumns = "1fr";
-}
 
 const listCol = {
   display: "flex",
@@ -201,7 +194,12 @@ const readMoreBtn = {
   alignSelf: "flex-start",
 };
 
-const buttonRow = { display: "flex", gap: 8, marginTop: 16, justifyContent: "flex-end" };
+const buttonRow = {
+  display: "flex",
+  gap: 8,
+  marginTop: 16,
+  justifyContent: "flex-end",
+};
 
 const emptyDetail = {
   height: "100%",
@@ -213,7 +211,12 @@ const emptyDetail = {
   fontStyle: "italic",
 };
 
-const status = { padding: 20, textAlign: "center", fontSize: 18, color: "var(--muted)" };
+const status = {
+  padding: 20,
+  textAlign: "center",
+  fontSize: 18,
+  color: "var(--muted)",
+};
 
 const scenarioBtn = (s, preview) => ({
   justifyContent: "flex-start",
@@ -228,5 +231,3 @@ const scenarioBtn = (s, preview) => ({
   color: "white",
   fontWeight: preview?.id === s.id ? 600 : 400,
 });
-
-
